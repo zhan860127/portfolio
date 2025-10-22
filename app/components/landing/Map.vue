@@ -1,5 +1,10 @@
+<script setup lang="ts">
+const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
+const colorMode = useColorMode()
+
+</script>
 <template>
-<svg baseprofile="tiny" fill="#ffffffff" height="auto" stroke="#a7be8c" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" version="1.2" viewbox="0 0 1000 1000" width="100%" xmlns="http://www.w3.org/2000/svg">
+<svg baseprofile="tiny" :fill="color" height="auto" stroke="#a7be8c" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" version="1.2" viewbox="0 0 1000 1000" width="100%" xmlns="http://www.w3.org/2000/svg">
  <g id="features">
   <path d="M181.2 423.5l0 0.1-1.1-0.4-0.3-0.4 0.2-0.4 0.4-0.8-1.3-0.9-0.2-0.3-0.1-0.1-2.5-1.9-1.8-1.9-2.7 1-1.3 1.6 0.2 0.7-0.1 0.6-0.3 0.2-0.3-0.1-0.4 2.4-5 5.9-11.4-4.1 0.2 1-0.2 1-0.3 0.1 1.1 1.1-0.4 8.2-3.3 2.6 2.5 2.7-1.4-0.6-1.9-0.2-1.7-0.7-0.9-1.5 0.3-0.6 1.6-1.9 0.5-1 0.1-1.4 0-1.8-0.6-3.1-1.2-3-0.2-1.6 1.1-0.6 5.5-2.7 7.2 4.7 5-0.6 0.8-6.3 1.7-3.9 5.3-1.1 5.2 4.7 2 5.3z m0.2 10.5l0.3-2.1 0.3 0-0.2 1.7-0.4 0.4z m0.9-5l-1-3 0.1-0.7 0.3-0.4 0.8 2.4-0.2 1.7z" id="TWKIN" name="Kinmen">
   </path>
@@ -101,6 +106,4 @@
   </circle>
  </g>
 </svg>
-
-
 </template>
