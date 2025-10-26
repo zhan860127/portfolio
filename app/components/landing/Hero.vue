@@ -17,7 +17,7 @@ onMounted(() => {
 
 // 取得格式化的圖片（前 9 張）
 const heroImages = cloudinaryStore.getFormattedImages(9)
-console.log(heroImages)
+console.log(heroImages.value)
 // 如果 Cloudinary 有圖片就用 Cloudinary，否則用原本的圖片
 const displayImages = computed(() => {
   return heroImages.value.length > 0 
