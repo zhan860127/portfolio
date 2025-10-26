@@ -1,7 +1,8 @@
 import { v2 as cloudinary } from 'cloudinary'
 
 export default defineEventHandler(async (event) => {
-  
+    const path = getRouterParam(event, 'folder')
+    
   const config = useRuntimeConfig().cloudinary
 
   cloudinary.config({
@@ -10,14 +11,12 @@ export default defineEventHandler(async (event) => {
     api_secret: config.apiSecret,
     secure: true,
   })
-  console.log("config",config)
+ 
   try {
-    const result = await cloudinary.api.resources({
-      type: 'upload',
-      max_results: 30,
-    })
+    const result = await cloudinary.api.sub_folders(path);
 
-    
+
+
     return result
   } catch (error) {
     

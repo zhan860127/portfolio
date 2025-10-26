@@ -22,6 +22,7 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
 
   // 取得圖片列表
   const fetchImages = async () => {
+ 
     if (images.value.length > 0) {
       return // 如果已經有圖片就不重複獲取
     }
@@ -31,7 +32,7 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
 
     try {
       const { data } = await useFetch<CloudinaryResponse>('/api/cloudinary')
-      console.log(data.value)
+      
       if (data.value?.resources) {
         images.value = data.value.resources
       } else if (data.value?.error) {
@@ -56,8 +57,8 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
       return images.value.slice(0, count).map((resource) => ({
         src: resource.secure_url,
         alt: resource.public_id,
-        width: resource.width,
-        height: resource.height
+        // width: resource.width,
+        // height: resource.height
       }))
     })
   }
