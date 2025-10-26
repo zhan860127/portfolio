@@ -1,11 +1,29 @@
 <script setup lang="ts">
 import type { IndexCollectionItem } from '@nuxt/content'
+import { useCloudinaryStore } from '~/stores/cloudinary';
 
 const { footer, global } = useAppConfig()
 
-defineProps<{
+const props = defineProps<{
   page: IndexCollectionItem
 }>()
+
+const cloudinaryStore = useCloudinaryStore()
+
+// 在組件掛載時獲取圖片
+onMounted(() => {
+  cloudinaryStore.fetchImages()
+})
+
+// 取得格式化的圖片（前 9 張）
+const heroImages = cloudinaryStore.getFormattedImages(9)
+console.log(heroImages)
+// 如果 Cloudinary 有圖片就用 Cloudinary，否則用原本的圖片
+const displayImages = computed(() => {
+  return heroImages.value.length > 0 
+    ? heroImages.value 
+    : props.page.hero.images
+})
 </script>
 
 <template>
@@ -161,7 +179,7 @@ defineProps<{
       class="py-2 -mx-8 sm:-mx-12 lg:-mx-16 [--duration:40s]"
     >
       <Motion
-        v-for="(img, index) in page.hero.images"
+        v-for="(img, index) in displayImages"
         :key="index"
         :initial="{
           scale: 1.1,

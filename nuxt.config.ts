@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/content',
     '@vueuse/nuxt',
+    '@pinia/nuxt',  // 添加 Pinia 模組
     'nuxt-og-image',
     'motion-v/nuxt'
   ],
