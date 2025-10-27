@@ -29,7 +29,9 @@ useSeoMeta({
       <LandingAbout :page />
       <LandingWorkExperience :page />
     </UPageSection>
-    <LandingMappage :page/>
+    <LandingMappage :page>
+       <LandingWorkExperience :page />
+      </LandingMappage>
     <LandingBlog :page />
     <LandingTestimonials :page />
     <LandingFAQ :page />

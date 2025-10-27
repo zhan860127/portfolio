@@ -7,6 +7,7 @@ onMounted(() => {
   if (svgRef.value) {
     // 拿到原生 svg DOM
     const svgEl = (svgRef.value as any).$el as SVGSVGElement
+    
     const north = svgEl.querySelectorAll('#TWHSQ') 
     for(let k of north){
         k.classList.add("lable")
@@ -20,9 +21,11 @@ onMounted(() => {
 <template>
     <UPageSection
       :ui="{
-        container: '!pt-0 lg:grid lg:gap-8 w-full'
+        container: '!pt-0 lg:grid lg:gap-8 w-full lg:grid-cols-2'
       }"
     >
+
+    <slot></slot>
     <LandingMap class="w-full" ref = "svgRef">
 
     </LandingMap>
