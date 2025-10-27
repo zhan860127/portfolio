@@ -11,8 +11,8 @@ export default defineAppConfig({
   },
   ui: {
     colors: {
-      primary: 'blue',
-      neutral: 'neutral'
+      primary: 'green',     // 主色調：自然綠 (如 #a7be8c)
+    neutral: 'stone'      // 中性色：米灰色 (#f5f5f0)
     },
     pageHero: {
       slots: {
