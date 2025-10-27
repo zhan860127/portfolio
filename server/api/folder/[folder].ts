@@ -1,8 +1,8 @@
 import { v2 as cloudinary } from 'cloudinary'
 
 export default defineEventHandler(async (event) => {
-    const path = getRouterParam(event, 'folder')
-    
+    const path = getRouterParam(event, 'folder') ??"tran"
+    console.log(123)
   const config = useRuntimeConfig().cloudinary
 
   cloudinary.config({

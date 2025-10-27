@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     api_secret: config.apiSecret,
     secure: true,
   })
-  console.log("config",config)
+  
   try {
     const result = await cloudinary.api.resources({
       type: 'upload',
