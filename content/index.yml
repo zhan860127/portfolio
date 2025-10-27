@@ -37,30 +37,32 @@ about:
     As a UX/UI designer and front-end developer with 6 years of experience, I leverage my Boston University Interactive Design degree to craft user-centered digital experiences.
     My approach blends creative strategy with technical expertise, transforming concepts into functional, purposeful digital products that seamlessly integrate design and technology.
 experience:
-  title: 市集
+  title: Market Information
+  description: |
+    市集資訊
   items:
     - position: "台北"
-      date: "2025-11-14 ~2025-11-17"
+      date: "²⁰²⁵  𝐍𝐨𝐯. 𝟎𝟕～𝟎𝟗 "
       company:
         name: 好好微笑手感市集
         logo: "i-simple-icons-nuxtdotjs"
         url: "https://nuxt.com"
-        color: "#a7be8c"
+        color: "grey"
     - position: "苗栗"
-      date: "2025-11-14 ~2025-11-17"
+      date: "²⁰²⁵  𝐍𝐨𝐯. 𝟎𝟕～𝟎𝟗 "
       company:
         name: 灰熊市集
         logo: "i-simple-icons-nuxtdotjs"
         url: "https://nuxt.com"
-        color: "#a7be8c"
+        color: "grey"
 
     - position: "桃園"
-      date: "2025-11-14 ~2025-11-17"
+      date: "²⁰²⁵  𝐍𝐨𝐯. 𝟎𝟕～𝟎𝟗 "
       company:
         name: 大溪工藝週
         logo: "i-simple-icons-nuxtdotjs"
         url: "https://nuxt.com"
-        color: "#a7be8c"
+        color: "grey"
     # - position: "Assets Designer at"
     #   date: "2022 - 2023"
     #   company:
