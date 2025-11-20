@@ -10,13 +10,14 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@pinia/nuxt',  // 添加 Pinia 模組
     'nuxt-og-image',
-    'motion-v/nuxt'
+    'motion-v/nuxt',
+    'nuxt-auth-utils'
   ],
 
   devtools: {
     enabled: true
   },
- vite: {
+  vite: {
     plugins: [svgLoader()],
   },
   css: ['~/assets/css/main.css'],
@@ -40,7 +41,7 @@ export default defineNuxtConfig({
       }
     }
   },
-    runtimeConfig: {
+  runtimeConfig: {
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,
