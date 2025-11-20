@@ -7,10 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -23,14 +21,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      # 可選：建立 .env
+      # 自動生成 .env
       - name: Create .env
         run: |
-          echo "DB_URL=${{ secrets.DB_URL }}" >> .env
-          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "NUXT_OAUTH_GOOGLE_CLIENT_ID=${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_ID }}" >> .env
+          echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> .env
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env
+          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env
 
-      - name: Run pnpm script
+      - name: Build Nuxt
+        run: pnpm build
+
+      - name: Start Nuxt
         run: pnpm start
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
