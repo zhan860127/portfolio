@@ -30,8 +30,5 @@ jobs:
           echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env
           echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env
 
-      - name: Build Nuxt
-        run: pnpm build
-
       - name: Start Nuxt
-        run: pnpm start
+        run: pnpm dev
