@@ -31,4 +31,4 @@ jobs:
           echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env
 
       - name: Start Nuxt
-        run: pnpm dev
+        run: pnpm build
