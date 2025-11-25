@@ -29,6 +29,9 @@ jobs:
           echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> .env
           echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env
           echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env
+      - name: Create credentials.json
+        run: |
+          echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > /github/home/credentials.json
 
       - name: Start Nuxt
         run: pnpm build
