@@ -46,6 +46,8 @@ export default defineNuxtConfig({
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,
       apiSecret: process.env.CLOUDINARY_API_SECRET,
-    }
+    },
+    googleCredentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || `./secrets/credentials.json`
   }
+
 })
