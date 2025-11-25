@@ -11,7 +11,8 @@ const navItems = [
   { label: 'About', to: '/about' },
   { label: 'Projects', to: '/projects' },
   { label: 'Speaking', to: '/speaking' },
-  { label: 'Blog', to: '/blog' }
+  { label: 'Blog', to: '/blog' },
+  { label: 'Products', to: '/products' }
 ]
 </script>
 
@@ -31,13 +32,7 @@ const navItems = [
           {{ item.label }}
         </NuxtLink>
 
-        <NuxtLink
-          to="/products"
-          class="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-          active-class="bg-gray-100 dark:bg-gray-800"
-        >
-          Products
-        </NuxtLink>
+    
 
         <NuxtLink
           to="/cart"
