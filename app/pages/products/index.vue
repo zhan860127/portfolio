@@ -5,7 +5,7 @@ import { useProductStore } from '~/stores/product';
 const productStore = useProductStore()
 const cloudinaryStore = useCloudinaryStore()
 
-productStore.fetchProducts('1iBbMtTjMyZfOpHtZti2wdfqbi49V46FWsu6qIKCO0Ug', 'product')
+await productStore.fetchProducts('1iBbMtTjMyZfOpHtZti2wdfqbi49V46FWsu6qIKCO0Ug', 'product')
 console.log(productStore.products)
 useHead({
   title: 'Products',
