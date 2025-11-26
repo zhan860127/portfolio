@@ -44,5 +44,21 @@ export const useCartStore = defineStore('cart', {
         clearCart() {
             this.items = []
         },
+        async checkout() {
+            try {
+                await $fetch('/api/checkout', {
+                    method: 'POST',
+                    body: {
+                        amount: this.cartTotal,
+                        items: this.items,
+                    }
+                })
+                this.clearCart()
+                alert('Order placed successfully!')
+            } catch (error) {
+                console.error('Checkout failed:', error)
+                alert('Checkout failed. Please try again.')
+            }
+        },
     },
 })

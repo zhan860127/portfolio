@@ -47,7 +47,8 @@ export default defineNuxtConfig({
       apiKey: process.env.CLOUDINARY_API_KEY,
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     },
-    googleCredentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || `./secrets/credentials.json`
+    googleCredentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || `./secrets/credentials.json`,
+    googleSpreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
   }
 
 })
