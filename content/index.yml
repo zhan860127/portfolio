@@ -1,12 +1,12 @@
 seo:
   title: "清嶼 Tranquil Island"
-  description: "Welcome to my portfolio! I'm Emma Thompson, a UX/UI designer and front-end developer based in Boston. I specialize in creating user-centered digital experiences that are both beautiful and functional."
-title: "Hey, I'm Emma Thompson UX/UI Designer"
-description: "I craft intuitive digital experiences where design meets functionality. Based in Boston, bringing ideas to life through code and creativity."
+  description: "「美好生活,是與內心寧靜相遇。」清嶼是於 2023 年以文創陶瓷產品為主創立的品牌,希望在喧囂的生活中找到一座與世隔絕的島嶼,並把這份美好和寧靜的感覺帶給每一位顧客。"
+# title: "清嶼 Tranquil Island"
+description: "「美好生活,是與內心寧靜相遇。」清嶼是於 2023 年以文創陶瓷產品為主創立的品牌,希望在喧囂的生活中找到一座與世隔絕的島嶼,並把這份美好和寧靜的感覺帶給每一位顧客。"
 map:
   images:
     - src: /hero/tw.svg
-      alt: Random Image 1
+      alt: 台灣地圖
 hero:
   links:
     - label: "Use this template"
