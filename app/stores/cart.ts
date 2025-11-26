@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Product } from '~/utils/products'
+import type { Product } from '~/stores/product'
 
 export interface CartItem extends Product {
     quantity: number
@@ -11,7 +11,7 @@ export const useCartStore = defineStore('cart', {
     }),
     getters: {
         cartTotal: (state) => {
-            return state.items.reduce((total, item) => total + item.price * item.quantity, 0)
+            return state.items.reduce((total, item) => total + Number(item.price) * item.quantity, 0)
         },
         itemCount: (state) => {
             return state.items.reduce((count, item) => count + item.quantity, 0)
@@ -26,13 +26,13 @@ export const useCartStore = defineStore('cart', {
                 this.items.push({ ...product, quantity: 1 })
             }
         },
-        removeFromCart(productId: number) {
+        removeFromCart(productId: string) {
             const index = this.items.findIndex((item) => item.id === productId)
             if (index !== -1) {
                 this.items.splice(index, 1)
             }
         },
-        updateQuantity(productId: number, quantity: number) {
+        updateQuantity(productId: string, quantity: number) {
             const item = this.items.find((item) => item.id === productId)
             if (item) {
                 item.quantity = quantity

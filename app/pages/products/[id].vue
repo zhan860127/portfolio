@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { products } from '~/utils/products'
+import { useProductStore } from '~/stores/product'
 import { useCartStore } from '~/stores/cart'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const cartStore = useCartStore()
+const productStore = useProductStore()
 const toast = useToast()
+const { products } = storeToRefs(productStore)
+
+// Ensure products are fetched if navigating directly
+if (products.value.length === 0) {
+    await productStore.fetchProducts('1iBbMtTjMyZfOpHtZti2wdfqbi49V46FWsu6qIKCO0Ug', 'product')
+}
 
 const product = computed(() => {
-  const id = Number(route.params.id)
-  return products.find((p) => p.id === id)
+  const id = route.params.id as string
+  return products.value.find((p) => p.id === id)
 })
 
 useHead({
@@ -25,7 +33,7 @@ function addToCart() {
       title: 'Added to cart',
       description: `${product.value.title} has been added to your cart.`,
       icon: 'i-heroicons-check-circle',
-      color: 'green'
+      color: 'success'
     })
   }
 }

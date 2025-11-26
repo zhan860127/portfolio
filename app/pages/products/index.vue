@@ -3,10 +3,9 @@ import { useProductStore } from '~/stores/product';
 
 
 const productStore = useProductStore()
-const cloudinaryStore = useCloudinaryStore()
 
 await productStore.fetchProducts('1iBbMtTjMyZfOpHtZti2wdfqbi49V46FWsu6qIKCO0Ug', 'product')
-console.log(productStore.products)
+
 useHead({
   title: 'Products',
   meta: [
@@ -29,7 +28,7 @@ useHead({
 
       <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
         <NuxtLink
-          v-for="product in products"
+          v-for="product in productStore.products"
           :key="product.id"
           :to="`/products/${product.id}`"
           class="group relative"
@@ -38,7 +37,9 @@ useHead({
             <img
               :src="product.image"
               :alt="product.title"
-              class="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity duration-300"
+              class="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity duration-300 block"
+              onerror="this.style.opacity='0'"
+
             >
           </div>
           <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
