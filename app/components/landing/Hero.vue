@@ -7,7 +7,7 @@ const { footer, global } = useAppConfig()
 const props = defineProps<{
   page: IndexCollectionItem
 }>()
-
+console.log(global.picture.light)
 const cloudinaryStore = useCloudinaryStore()
 
 // 在組件掛載時獲取圖片
@@ -52,11 +52,15 @@ const displayImages = computed(() => {
           delay: 0.1
         }"
       >
-        <UColorModeAvatar
-          class="size-18 ring ring-default ring-offset-3 ring-offset-(--ui-bg)"
-          :light="global.picture?.light!"
-          :dark="global.picture?.dark!"
+        <NuxtImg
+          class=""
+            fit="cover"
+          width="400"
+          height="400"
+          :src="global.picture?.light!"
           :alt="global.picture?.alt!"
+          placeholder
+          preload
         />
       </Motion>
     </template>
