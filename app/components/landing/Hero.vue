@@ -32,7 +32,7 @@ const displayImages = computed(() => {
     :ui="{
       headline: 'flex items-center justify-center',
       title: 'text-shadow-md max-w-lg mx-auto',
-      links: 'mt-4 flex-col justify-center items-center'
+      links: 'flex-col justify-center items-center'
     }"
   >
     <template #headline>
@@ -104,7 +104,7 @@ const displayImages = computed(() => {
     </template>
 
     <template #links>
-      <Motion
+      <!-- <Motion
         :initial="{
           scale: 1.1,
           opacity: 0,
@@ -146,7 +146,7 @@ const displayImages = computed(() => {
             </template>
           </UButton>
         </div>
-      </Motion>
+      </Motion> -->
 
       <div class="gap-x-4 inline-flex mt-4">
         <Motion

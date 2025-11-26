@@ -8,10 +8,10 @@ const { loggedIn, user, clear } = useUserSession()
 
 const navItems = [
   { label: 'Home', to: '/' },
-  { label: 'About', to: '/about' },
-  { label: 'Projects', to: '/projects' },
-  { label: 'Speaking', to: '/speaking' },
-  { label: 'Blog', to: '/blog' },
+  // { label: 'About', to: '/about' },
+  // { label: 'Projects', to: '/projects' },
+  // { label: 'Speaking', to: '/speaking' },
+  // { label: 'Blog', to: '/blog' },
   { label: 'Products', to: '/products' }
 ]
 </script>
