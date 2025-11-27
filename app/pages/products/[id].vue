@@ -11,7 +11,7 @@ const { products } = storeToRefs(productStore)
 
 // Ensure products are fetched if navigating directly
 if (products.value.length === 0) {
-    await productStore.fetchProducts('1iBbMtTjMyZfOpHtZti2wdfqbi49V46FWsu6qIKCO0Ug', 'product')
+    await productStore.fetchProducts('product')
 }
 
 const product = computed(() => {

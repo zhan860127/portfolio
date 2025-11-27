@@ -18,13 +18,13 @@ export const useProductStore = defineStore('product', () => {
     const error = ref<string | null>(null)
     const cloudinaryStore = useCloudinaryStore()
 
-    const fetchProducts = async (spreadsheetId: string, range: string) => {
+    const fetchProducts = async (range: string) => {
         loading.value = true
         error.value = null
         try {
             // 1. Fetch data from Google Sheet
             const sheetData = await $fetch<any[]>('/api/getSheet', {
-                query: { spreadsheetId, range }
+                query: { range }
             })
 
             // 2. Fetch images from Cloudinary

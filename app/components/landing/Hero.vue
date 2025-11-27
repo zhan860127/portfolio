@@ -7,7 +7,7 @@ const { footer, global } = useAppConfig()
 const props = defineProps<{
   page: IndexCollectionItem
 }>()
-console.log(global.picture.light)
+
 const cloudinaryStore = useCloudinaryStore()
 
 // 在組件掛載時獲取圖片

@@ -2,31 +2,40 @@
 <script setup lang="ts">
 
 const svgRef = ref<InstanceType<typeof LandingMap> | null>(null)
+const scheduleStore = useScheduleStore()
 
-onMounted(() => {   
+onMounted(async () => {   
+   
+   await scheduleStore.fetchSchedule() 
+  
   if (svgRef.value) {
     // 拿到原生 svg DOM
     const svgEl = (svgRef.value as any).$el as SVGSVGElement
+  for(let s of scheduleStore.getSchedule().value){
+    const north = svgEl.querySelectorAll(`#${s.id}`) 
     
-    const north = svgEl.querySelectorAll('#TWHSQ') 
     for(let k of north){
         k.classList.add("lable")
         k.classList.add("show")
 
     }
   }
+  }
+    
 })
+
+
 </script>
 
 <template>
     <UPageSection
       :ui="{
-        container: '!pt-0 lg:grid lg:gap-8 w-full lg:grid-cols-2'
+        container: '!pt-0 lg:grid lg:gap-8  lg:grid-cols-2 center'
       }"
     >
 
     <slot></slot>
-    <LandingMap class="w-full" ref = "svgRef">
+    <LandingMap class="" ref = "svgRef">
 
     </LandingMap>
 </UPageSection>

@@ -4,7 +4,7 @@ import { useProductStore } from '~/stores/product';
 
 const productStore = useProductStore()
 
-await productStore.fetchProducts('1iBbMtTjMyZfOpHtZti2wdfqbi49V46FWsu6qIKCO0Ug', 'product')
+await productStore.fetchProducts('product')
 
 useHead({
   title: 'Products',
