@@ -35,7 +35,7 @@ useHead({
         >
           <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800 xl:aspect-w-7 xl:aspect-h-8">
             <img
-              :src="product.image"
+              :src="product.image?.[0]?.src"
               :alt="product.title"
               class="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity duration-300 block"
               onerror="this.style.opacity='0'"

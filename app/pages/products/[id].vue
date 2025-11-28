@@ -45,13 +45,24 @@ function addToCart() {
       <div v-if="product" class="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
         <!-- Image gallery -->
         <div class="flex flex-col-reverse">
-          <div class="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+          
+
+              <UCarousel 
+              v-slot="{ item }"  
+              loop
+              arrows
+              dots
+              :autoplay="{ delay: 1000 }"
+
+              :items="product.image" class="w-full max-w-xs mx-auto" >
             <img
-              :src="product.image"
+              :src="item.src"
               :alt="product.title"
-              class="w-full h-full object-center object-cover"
+              class="w-full h-full object-center object-cover rounded-lg"
+              
             >
-          </div>
+          </UCarousel>
+          
         </div>
 
         <!-- Product info -->

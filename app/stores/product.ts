@@ -9,7 +9,7 @@ export interface Product {
     is_published: string
     price: number
     quantity: number
-    image?: string
+    image?: { src: string; alt?: string }[]
 }
 
 export const useProductStore = defineStore('product', () => {
@@ -57,9 +57,9 @@ export const useProductStore = defineStore('product', () => {
                 // Use getFolderImages as requested
 
                 const folderImages = cloudinaryStore.getFolderImages(product.id).value as any[]
-
+                    
                 if (folderImages && folderImages.length > 0) {
-                    product.image = folderImages[0].src
+                    product.image = folderImages
                 }
 
                 return product as Product

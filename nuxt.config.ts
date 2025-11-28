@@ -13,12 +13,26 @@ export default defineNuxtConfig({
     'motion-v/nuxt',
     'nuxt-auth-utils'
   ],
-
+   devServer: {
+    host: "0.0.0.0"
+  },
   devtools: {
     enabled: true
   },
   vite: {
     plugins: [svgLoader()],
+   server: {
+       hmr: {
+        protocol: "wss",
+        host: process.env.NGROK_HOST,
+        port: 443
+      },
+      
+      allowedHosts: [
+        ".*\.ngrok-free\.app$",
+        ".*\.ngrok\.io$",
+      ]
+    }
   },
   css: ['~/assets/css/main.css'],
 
