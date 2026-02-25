@@ -35,11 +35,18 @@ export default defineEventHandler(async (event) => {
     try {
         await sheets.spreadsheets.values.append({
             spreadsheetId: config.googleSpreadsheetId,
-            range: "order", // Assuming columns A-D are for Email, Amount, Items, Time
+            range: "order",
             valueInputOption: "USER_ENTERED",
             requestBody: {
                 values: [
-                    [user?.email ?? "unknown", user?.name ?? "unknown", amount, itemsSummary, orderTime]
+                    [
+                        user?.email ?? "unknown",
+                        user?.name ?? "unknown",
+                        amount,
+                        itemsSummary,
+                        orderTime,
+                        "Pending Payment"
+                    ]
                 ],
             },
         });

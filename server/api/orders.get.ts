@@ -38,14 +38,18 @@ export default defineEventHandler(async (event) => {
     const userEmail = user?.email ?? "unknown";
 
     const orders = values
-      .filter((row) => row && row.length >= 4)
-      .filter((row) => row[0] === userEmail)
-      .map((row) => ({
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => row && row.length >= 4)
+      .filter(({ row }) => row[0] === userEmail)
+      .map(({ row, index }) => ({
+        rowNumber: index + 1,
         email: row[0] ?? "",
         name: row[1] ?? "",
         amount: Number(row[2] ?? 0) || 0,
         items: row[3] ?? "",
         time: row[4] ?? "",
+        status: row[5] ?? "",
+        lastFiveDigits: row[6] ?? "",
       }));
 
     return orders;
