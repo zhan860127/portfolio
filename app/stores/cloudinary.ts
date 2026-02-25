@@ -51,6 +51,7 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
 
   // 取得前 N 張圖片
   const getFolderImages = (folder: string = "") => {
+    
     return computed(() => {
       // 如果 folder 有指定，就只回傳那個資料夾的圖片
       if (folder) {

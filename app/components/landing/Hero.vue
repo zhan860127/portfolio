@@ -16,8 +16,7 @@ onMounted(() => {
 })
 
 // 取得格式化的圖片（前 9 張）
-const heroImages = cloudinaryStore.getFolderImages("tran/index_caroul")
-
+const heroImages = cloudinaryStore.getFormattedImages(9)
 
 // 如果 Cloudinary 有圖片就用 Cloudinary，否則用原本的圖片
 const displayImages = computed(() => {
@@ -25,6 +24,7 @@ const displayImages = computed(() => {
     ? heroImages.value 
     : props.page.hero.images
 })
+
 </script>
 
 <template>

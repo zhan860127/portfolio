@@ -12,7 +12,8 @@ const navItems = [
   // { label: 'Projects', to: '/projects' },
   // { label: 'Speaking', to: '/speaking' },
   // { label: 'Blog', to: '/blog' },
-  { label: 'Products', to: '/products' }
+  { label: 'Products', to: '/products' },
+  { label: 'My Orders', to: '/orders' }
 ]
 </script>
 
