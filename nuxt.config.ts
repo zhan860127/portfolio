@@ -59,10 +59,11 @@ export default defineNuxtConfig({
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,
-      apiSecret: process.env.CLOUDINARY_API_SECRET,
+      apiSecret: process.env.CLOUDINARY_API_SECRET
     },
     googleCredentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || `./secrets/credentials.json`,
-    googleSpreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
+    googleSpreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
+    instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN
   }
 
 })
