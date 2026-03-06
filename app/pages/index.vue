@@ -33,8 +33,8 @@ useSeoMeta({
       <LandingWorkExperience :page />
     </LandingMappage>
     <LandingInstagram :page />
-    <LandingBlog :page />
-    <LandingTestimonials :page />
-    <LandingFAQ :page />
+    <!-- <LandingBlog :page />
+    <LandingTestimonials :page /> -->
+    <!-- <LandingFAQ :page /> -->
   </UPage>
 </template>

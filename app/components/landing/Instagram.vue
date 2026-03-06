@@ -6,9 +6,21 @@ interface InstagramPost {
   html: string
 }
 
+type InstagramSection = {
+  instagram?: {
+    title?: string
+    description?: string
+    url?: string
+  }
+}
+
 const props = defineProps<{
-  page: IndexCollectionItem
+  page: IndexCollectionItem & InstagramSection
 }>()
+
+const instagramUrl = computed(
+  () => props.page.instagram?.url ?? 'https://www.instagram.com/tranquil._.island/'
+)
 
 // 從後端 /api/instagram 取得 oEmbed
 const { data, pending } = await useAsyncData('instagram-posts', () =>
@@ -42,8 +54,7 @@ const groups = computed<InstagramPost[][]>(() => {
   >
     <div class="flex items-center justify-between mb-4">
       <UButton
-        v-if="page.instagram?.url"
-        :to="page.instagram.url"
+        :to="instagramUrl"
         target="_blank"
         color="neutral"
         variant="solid"
@@ -57,9 +68,18 @@ const groups = computed<InstagramPost[][]>(() => {
     </div>
 
     <div v-else-if="groups.length === 0">
-      <p class="text-sm text-muted">
-        暫時無法載入 Instagram 貼文，您可以直接前往 IG 查看更多內容。
-      </p>
+      <div class="text-sm text-muted">
+        <ULink
+          :to="instagramUrl"
+          target="_blank"
+          class="inline-flex items-center gap-2 hover:text-(--ui-primary)"
+        >
+          <UIcon name="i-simple-icons-instagram" class="h-4 w-4" />
+          <span class="underline underline-offset-4">
+            {{ instagramUrl }}
+          </span>
+        </ULink>
+      </div>
     </div>
 
     <div v-else>
