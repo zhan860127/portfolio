@@ -9,7 +9,8 @@ const credentialsPath = config.googleCredentialsPath;
 if (!credentialsPath) {
     throw new Error("Missing Google credentials path");
 }
-const credentials = JSON.parse(readFileSync(credentialsPath, "utf-8"));
+
+const credentials = JSON.parse(credentialsPath);
 
 
 export default defineEventHandler(async (event) => {

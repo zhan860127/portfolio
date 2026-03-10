@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     throw new Error("Missing Google credentials path");
   }
 
-  const credentials = JSON.parse(readFileSync(credentialsPath, "utf-8"));
+  const credentials = JSON.parse(credentialsPath);
 
   if (!config.googleSpreadsheetId) {
     throw createError({

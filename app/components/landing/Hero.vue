@@ -53,10 +53,10 @@ const displayImages = computed(() => {
         }"
       >
         <NuxtImg
-          class=""
             fit="cover"
-          width="400"
-          height="400"
+          width="200"
+          height="200"
+          sizes="sm:80vw md:300px"
           :src="global.picture?.light!"
           :alt="global.picture?.alt!"
           placeholder

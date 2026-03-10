@@ -18,10 +18,19 @@ useHead({
 })
 
 useSeoMeta({
-  titleTemplate: '%s - Nuxt Portfolio Template',
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/portfolio-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/portfolio-light.png',
-  twitterCard: 'summary_large_image'
+  title: '清嶼',
+  titleTemplate: (title) => title ? `${title}｜Tranquil Island` : '清嶼 Tranquil Island',
+  description: '清嶼是一個以手作陶瓷為核心的創作品牌，將自然、記憶與生活感受轉化為器物。創作靈感來自農村成長的田野、植物與季節記憶，透過手捏與盤築製作，每件作品皆保留手作的溫度與時間的痕跡。',
+
+  ogTitle: '清嶼 Tranquil Island',
+  ogDescription: '清嶼是一個以手作陶瓷為核心的創作品牌，將自然、記憶與生活感受轉化為器物。創作靈感來自農村成長的田野、植物與季節記憶，透過手捏與盤築製作，每件作品皆保留手作的溫度與時間的痕跡。',
+  ogImage: 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg',
+  ogType: 'website',
+
+  twitterCard: 'summary_large_image',
+  twitterTitle: '清嶼 Tranquil Island',
+  twitterDescription: '『 美好生活，是與內心的寧靜相遇。』',
+  twitterImage: 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg'
 })
 
 const [{ data: navigation }, { data: files }] = await Promise.all([
