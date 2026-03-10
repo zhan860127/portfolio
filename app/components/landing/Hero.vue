@@ -25,6 +25,9 @@ const displayImages = computed(() => {
     : props.page.hero.images
 })
 
+// 僅在 Cloudinary 成功取得圖片時才顯示圖片，否則顯示空白
+const showCloudinaryImages = computed(() => heroImages.value.length > 0)
+
 </script>
 
 <template>
@@ -183,9 +186,11 @@ const displayImages = computed(() => {
       pause-on-hover
       class="py-2 -mx-8 sm:-mx-12 lg:-mx-16 [--duration:40s]"
     >
+      <!-- Cloudinary 成功回傳後才顯示圖片 -->
       <Motion
-        v-for="(img, index) in displayImages"
-        :key="index"
+        v-for="(img, index) in heroImages"
+        v-if="showCloudinaryImages"
+        :key="'img-' + index"
         :initial="{
           scale: 1.1,
           opacity: 0,
@@ -211,6 +216,17 @@ const displayImages = computed(() => {
           preload
         />
       </Motion>
+      <!-- 尚未成功呼叫前顯示空白佔位 -->
+      <Motion
+        v-for="index in 9"
+        v-if="!showCloudinaryImages"
+        :key="'placeholder-' + index"
+        :initial="{ opacity: 0 }"
+        :animate="{ opacity: 1 }"
+        :transition="{ duration: 0.3 }"
+        class="rounded-lg aspect-square bg-muted/30 shrink-0"
+        style="width: 234px; height: 234px"
+      />
     </UMarquee>
   </UPageHero>
 </template>
