@@ -24,13 +24,13 @@ export default defineAppConfig({
     }
   },
   footer: {
-    credits: `Built with Nuxt UI • © ${new Date().getFullYear()}`,
+    credits: `Built with Tranquil Island • © ${new Date().getFullYear()}`,
     colorMode: false,
     links: [{
       'icon': 'i-simple-icons-instagram',
-      'to': 'https://go.nuxt.com/discord',
+      'to': 'https://www.instagram.com/tranquil._.island/',
       'target': '_blank',
-      'aria-label': 'Nuxt on Discord'
+      'aria-label': 'Tranquil Island on Instagram'
     },]
   }
 })
