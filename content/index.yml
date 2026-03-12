@@ -1,8 +1,9 @@
 seo:
   title: "清嶼 Tranquil Island"
-  description: "「美好生活,是與內心寧靜相遇。」清嶼是於 2023 年以文創陶瓷產品為主創立的品牌,希望在喧囂的生活中找到一座與世隔絕的島嶼,並把這份美好和寧靜的感覺帶給每一位顧客。"
-# title: "清嶼 Tranquil Island"
-description: "「美好生活,是與內心寧靜相遇。」清嶼是於 2023 年以文創陶瓷產品為主創立的品牌,希望在喧囂的生活中找到一座與世隔絕的島嶼,並把這份美好和寧靜的感覺帶給每一位顧客。"
+  description: "「美好生活，是與內心寧靜相遇。」清嶼是於 2023 年以文創陶瓷產品為主創立的品牌，專注手作陶瓷、手捏陶藝、手感器皿。希望在喧囂的生活中找到一座與世隔絕的島嶼，將這份美好和寧靜帶給每一位顧客。"
+  keywords: "清嶼, Tranquil Island, 手作陶瓷, 陶藝, 手捏, 盤築, 手感器皿, 文創陶瓷, 柴燒釉"
+  ogImage: "https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg"
+  ogType: "website"
 map:
   images:
     - src: /hero/tw.svg
@@ -14,25 +15,32 @@ hero:
       color: "neutral"
   images:
     - src: /hero/random-1.avif
-      alt: Random Image 1
+      alt: 清嶼手作陶瓷作品 - 手捏陶藝
     - src: /hero/random-2.avif
-      alt: Random Image 2
+      alt: 清嶼 Tranquil Island 手感器皿
     - src: /hero/random-3.avif
-      alt: Random Image 3
+      alt: 清嶼陶藝創作 - 盤築技法
     - src: /hero/random-4.avif
-      alt: Random Image 4
+      alt: 清嶼手作陶瓷 - 自然釉色
     - src: /hero/random-5.avif
-      alt: Random Image 5
+      alt: 清嶼手捏陶器作品
     - src: /hero/random-6.avif
-      alt: Random Image 6
+      alt: 清嶼文創陶瓷 - 生活器物
     - src: /hero/random-7.avif
-      alt: Random Image 7
+      alt: 清嶼陶藝 - 自然釉色
     - src: /hero/random-8.avif
-      alt: Random Image 8
+      alt: 清嶼手作陶瓷器皿
     - src: /hero/random-9.avif
-      alt: Random Image 9
+      alt: 清嶼 Tranquil Island 陶藝作品
 about:
   title: "About Me"
+  quote: |
+    每一件器物
+    都來自雙手與土地的相遇，
+    也回到生活之中。
+  materials:
+    title: "Materials"
+    tags: ["陶土", "手捏","陶藝創作","手感器皿"]
   description: |
     清嶼是一個以手作陶瓷為核心的創作品牌，專注於將自然、記憶與生活感受轉化為器物。創作者以陶土為媒介，透過手捏、盤築與釉色實驗，讓每一件作品都保留手作的溫度與時間的痕跡。
     創作靈感多來自成長於農村的記憶——田野、植物、季節與土地的氣息，這些元素在器物與小型雕塑中被重新詮釋。清嶼希望透過陶瓷，讓日常生活中的使用器物不只是功能性的存在，也能成為承載情感與故事的媒介。

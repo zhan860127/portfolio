@@ -27,3 +27,5 @@ logs
 .history
 
 credentials.json
+.vercel
+.env*.local
