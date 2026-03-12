@@ -32,12 +32,13 @@ onMounted(async () => {
       :ui="{
         container: '!pt-0 lg:grid lg:gap-8  lg:grid-cols-2 center'
       }"
-    >
-
+    >  
     <slot></slot>
     <LandingMap class="" ref = "svgRef">
 
-    </LandingMap>
+</LandingMap>
+  
+   
 </UPageSection>
 </template>
 <style >

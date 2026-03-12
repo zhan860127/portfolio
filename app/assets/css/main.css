@@ -1,15 +1,17 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400&display=swap');
 
 @source "../../../content/**/*";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
-  --font-serif: 'Instrument Serif', serif;
+  --font-sans: 'Noto Serif TC', Georgia, serif;
+  --font-serif: 'Noto Serif TC', Georgia, serif;
 }
 
 :root {
   --ui-container: var(--container-4xl);
+  font-family: 'Noto Serif TC', Georgia, serif;
 
   ::selection {
     color: #282a30;

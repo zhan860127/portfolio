@@ -40,6 +40,13 @@ export default defineContentConfig({
       type: 'page',
       source: 'index.yml',
       schema: z.object({
+        seo: z.object({
+          title: z.string(),
+          description: z.string(),
+          keywords: z.string().optional(),
+          ogImage: z.string().optional(),
+          ogType: z.string().optional()
+        }).optional(),
         hero: z.object({
           links: z.array(createButtonSchema()),
           images: z.array(createImageSchema())
@@ -47,7 +54,13 @@ export default defineContentConfig({
         map: z.object({
           images: z.array(createImageSchema())
         }),
-        about: createBaseSchema(),
+        about: createBaseSchema().extend({
+          quote: z.string().optional(),
+          materials: z.object({
+            title: z.string(),
+            tags: z.array(z.string())
+          }).optional()
+        }),
         experience: createBaseSchema().extend({
           items: z.array(z.object({
             date: z.date(),
