@@ -44,6 +44,7 @@ const groups = computed<InstagramPost[][]>(() => {
 </script>
 <template>
   <UPageSection
+    v-if="pending"
     :title="page.instagram?.title || 'Instagram'"
     :description="page.instagram?.description"
     :ui="{
