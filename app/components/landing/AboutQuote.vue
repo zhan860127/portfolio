@@ -14,7 +14,7 @@ const materials = computed(() => ({
 </script>
 
 <template>
-  <div class="about-quote px-6 py-10">
+  <div class="about-quote px-6 py-10 rounded-lg">
     <!-- Top quote -->
     <div class="quote-block">
       <div class="quote-line" />

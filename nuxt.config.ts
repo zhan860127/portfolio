@@ -18,7 +18,8 @@ export default defineNuxtConfig({
     provider: process.env.VERCEL ? 'vercel' : 'ipx',
     },
    devServer: {
-    host: "0.0.0.0"
+    host: "0.0.0.0",
+    port: 3000   // 固定使用 3000
   },
   devtools: {
     enabled: true
@@ -44,6 +45,7 @@ export default defineNuxtConfig({
   content: {
    
   },
+ 
   nitro: {
     externals: {
       external: ['better-sqlite3']

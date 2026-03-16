@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 
 interface ScheduleResource {
-    id: string,
-    city: string,
-    time: string,
+    id: string
+    city: string
+    time: string
+    marketName: string
+    marketUrl: string
 }
 
 
@@ -32,7 +34,9 @@ export const useScheduleStore = defineStore('schedule', () => {
                 return {
                     id: element[0] ?? '',
                     city: element[1] ?? '',
-                    time: element[2] ?? '',
+                    time: element[3] ?? '',
+                    marketName: element[4] ?? '',
+                    marketUrl: element[6] ?? '',
                 }
             });
 

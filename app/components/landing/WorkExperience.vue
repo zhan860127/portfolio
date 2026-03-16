@@ -5,15 +5,26 @@ const props = defineProps<{
   page: IndexCollectionItem
 }>()
 
+const scheduleStore = useScheduleStore()
+
+// 從 scheduledata 讀取 marketName、time，依 city 分組
 const groupedExperience = computed(() => {
-  const groups: Record<string, any[]> = {}
-  const items = props.page.experience.items || []
+  const groups: Record<string, Array<{ date: string, company: { name: string, url: string } }>> = {}
+  const items = scheduleStore.schedule
 
   for (const item of items) {
-    if (!groups[item.position]) groups[item.position] = []
-    groups[item.position].push(item)
+    if (!item?.city || item.city === 'city' || item.city === '城市') continue
+    const city = item.city
+    if (!groups[city]) groups[city] = []
+    groups[city].push({
+      date: item.time,
+      company: {
+        name: item.marketName,
+        url: item.marketUrl || '#'
+      }
+    })
   }
-  
+
   return groups
 })
 </script>
@@ -39,7 +50,9 @@ const groupedExperience = computed(() => {
 
           <!-- 該地點下的市集列表 -->
           <div v-for="(experience, index) in items" :key="index">
-              <p class="text-xs font-semibold mb-2 text-left">{{ position }} &nbsp&nbsp&nbsp&nbsp{{ experience.date }}</p>
+              <p class="text-xs font-semibold mb-2 text-left">
+                <!-- {{ position }}  -->
+               {{ experience.date }}</p>
       
             <Motion
               :initial="{ opacity: 0, transform: 'translateY(20px)' }"
@@ -55,10 +68,7 @@ const groupedExperience = computed(() => {
                 :to="experience.company.url"
                 target="_blank"
               >
-                <div
-                  class="inline-flex items-center gap-1"
-                  :style="{ color: experience.company.color }"
-                >
+                <div class="inline-flex items-center gap-1">
                   <span class="font-medium text-lg">{{
                     experience.company.name
                   }}</span>
