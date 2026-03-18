@@ -36,7 +36,7 @@ export default defineAppConfig({
     colorMode: false,
     links: [
       { label: '隱私政策', to: '/privacy' },
-      { label: '用戶資料刪除', to: '/privacy/data-deletion' },
+      { label: '用戶資料刪除', to: '/data-deletion' },
       {
         icon: 'i-simple-icons-instagram',
         to: 'https://www.instagram.com/tranquil._.island/',

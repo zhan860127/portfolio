@@ -84,7 +84,7 @@ useHead({
           </h2>
           <p>
             您有權查詢、閱覽、複製、補充、更正或請求刪除您的個人資料。若您希望行使上述權利，請參考我們的
-            <NuxtLink to="/privacy/data-deletion" class="text-primary-600 dark:text-primary-400 hover:underline">
+            <NuxtLink to="/data-deletion" class="text-primary-600 dark:text-primary-400 hover:underline">
               用戶資料刪除說明
             </NuxtLink>
             或透過下方聯絡方式與我們聯繫。
@@ -114,6 +114,13 @@ useHead({
             >
               Instagram
             </a>
+            或寄信至
+            <a
+              href="mailto:tranquilisland2023@gmail.com"
+              class="text-primary-600 dark:text-primary-400 hover:underline"
+            >
+              tranquilisland2023@gmail.com
+            </a>
             與我們聯繫。
           </p>
         </section>
@@ -121,7 +128,7 @@ useHead({
 
       <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
         <NuxtLink
-          to="/privacy/data-deletion"
+          to="/data-deletion"
           class="text-primary-600 dark:text-primary-400 hover:underline text-sm"
         >
           → 用戶資料刪除說明

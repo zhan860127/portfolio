@@ -64,7 +64,14 @@ useHead({
               ，說明您希望刪除帳號相關資料。
             </li>
             <li>
-              <strong>電子郵件</strong>：若您知道我們的聯絡信箱，可直接寄信提出請求。
+              <strong>電子郵件</strong>：寄信至
+              <a
+                href="mailto:tranquilisland2023@gmail.com"
+                class="text-primary-600 dark:text-primary-400 hover:underline"
+              >
+                tranquilisland2023@gmail.com
+              </a>
+              提出刪除請求。
             </li>
           </ol>
           <p class="mt-4">
@@ -110,6 +117,39 @@ useHead({
               Google 帳戶權限設定
             </a>
             中撤銷本網站的存取權限。撤銷後，您將無法再使用 Google 登入本網站。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            Facebook 應用程式活動刪除
+          </h2>
+          <p class="mb-4">
+            若您曾透過 Facebook 或 Instagram 登入使用清嶼相關服務，可依以下步驟自行刪除應用程式活動：
+          </p>
+          <ol class="list-decimal pl-6 space-y-2">
+            <li>進入您的 Facebook 帳號的「設定和隱私」選單，點擊「設定」</li>
+            <li>向下滾動並點擊「應用程式和網站」</li>
+            <li>找到並點擊「清嶼」</li>
+            <li>點擊「移除」按鈕</li>
+          </ol>
+          <p class="mt-4">
+            即可成功地刪除您的清嶼應用程式活動。
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            聯絡我們
+          </h2>
+          <p>
+            您遇到任何問題請立即發信至
+            <a
+              href="mailto:tranquilisland2023@gmail.com"
+              class="text-primary-600 dark:text-primary-400 hover:underline"
+            >
+              tranquilisland2023@gmail.com
+            </a>
           </p>
         </section>
       </div>
