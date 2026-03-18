@@ -1,4 +1,12 @@
 export default defineAppConfig({
+  hero: {
+    instagram: {
+      icon: 'i-simple-icons-instagram',
+      to: 'https://www.instagram.com/tranquil._.island/',
+      target: '_blank',
+      'aria-label': 'Tranquil Island on Instagram'
+    }
+  },
   global: {
     picture: {
       dark: '/hero/logo.jpg',
@@ -26,11 +34,15 @@ export default defineAppConfig({
   footer: {
     credits: `Built with Tranquil Island • © ${new Date().getFullYear()}`,
     colorMode: false,
-    links: [{
-      'icon': 'i-simple-icons-instagram',
-      'to': 'https://www.instagram.com/tranquil._.island/',
-      'target': '_blank',
-      'aria-label': 'Tranquil Island on Instagram'
-    },]
+    links: [
+      { label: '隱私政策', to: '/privacy' },
+      { label: '用戶資料刪除', to: '/privacy/data-deletion' },
+      {
+        icon: 'i-simple-icons-instagram',
+        to: 'https://www.instagram.com/tranquil._.island/',
+        target: '_blank',
+        'aria-label': 'Tranquil Island on Instagram'
+      }
+    ]
   }
 })

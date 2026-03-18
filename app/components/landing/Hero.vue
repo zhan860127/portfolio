@@ -2,7 +2,7 @@
 import type { IndexCollectionItem } from '@nuxt/content'
 import { useCloudinaryStore } from '~/stores/cloudinary';
 
-const { footer, global } = useAppConfig()
+const { hero, global } = useAppConfig()
 
 const props = defineProps<{
   page: IndexCollectionItem
@@ -157,9 +157,7 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
 
       <div class="gap-x-4 inline-flex mt-4">
         <Motion
-          v-for="(link, index) of footer?.links"
-          :key="index"
-
+          v-if="hero?.instagram"
           :initial="{
             scale: 1.1,
             opacity: 0,
@@ -172,11 +170,11 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
           }"
           :transition="{
             duration: 0.6,
-            delay: 0.5 + index * 0.1
+            delay: 0.5
           }"
         >
           <UButton
-            v-bind="{ size: 'md', color: 'neutral', variant: 'ghost', ...link }"
+            v-bind="{ size: 'md', color: 'neutral', variant: 'ghost', ...hero.instagram }"
           />
         </Motion>
       </div>

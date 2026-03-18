@@ -36,6 +36,7 @@
     "@oxc-parser/binding-linux-arm64-gnu": "^0.95.0",
     "eslint": "^9.38.0",
     "typescript": "^5.9.3",
+    "vite-plugin-progress": "^0.0.7",
     "vite-svg-loader": "^5.1.0",
     "vue-tsc": "^3.1.1"
   },
