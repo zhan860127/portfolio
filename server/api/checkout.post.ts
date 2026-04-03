@@ -89,7 +89,9 @@ async function createOrder(
   items: CartItem[]
 ) {
   const itemsSummary = items.map((i) => `${i.title} *${i.quantity}`).join('\n')
-  const orderTime = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
+  const orderTime = new Date().toLocaleString('sv-SE', { 
+    timeZone: 'Asia/Taipei' 
+  }).replace('T', ' ');
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
