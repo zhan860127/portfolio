@@ -7,6 +7,7 @@ const { loggedIn } = useUserSession()
 const paymentInputs = ref<Record<number, string>>({})
 const paymentLoading = ref<Record<number, boolean>>({})
 const paymentErrors = ref<Record<number, string | null>>({})
+const showBankModal = ref(false)
 
 useHead({
   title: 'My Orders',
@@ -18,6 +19,11 @@ useHead({
 if (loggedIn.value) {
   await orderStore.fetchOrders()
 }
+const sortedOrders = computed(() => {
+  return [...orderStore.orders].sort((a, b) => {
+    return new Date(b.time).getTime() - new Date(a.time).getTime()
+  })
+})
 
 const submitPayment = async (index: number) => {
   const code = (paymentInputs.value[index] || '').trim()
@@ -78,7 +84,7 @@ const submitPayment = async (index: number) => {
 
         <div v-else class="space-y-4">
           <div
-            v-for="(order, index) in orderStore.orders"
+            v-for="(order, index) in sortedOrders"
             :key="index"
             class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white/80 dark:bg-gray-900/80 shadow-sm"
           >
@@ -109,6 +115,15 @@ const submitPayment = async (index: number) => {
                   >
                     {{ order.status || 'N/A' }}
                   </span>
+                  <UButton
+                    size="xs"
+                    color="neutral"
+                    variant="outline"
+                    icon="i-lucide-landmark"
+                    @click="showBankModal = true"
+                  >
+                    查看匯款資訊
+                  </UButton>
                   <div
                     v-if="order.status === 'Pending Payment'"
                     class="flex flex-col items-end gap-1 w-full sm:w-auto"
@@ -153,6 +168,8 @@ const submitPayment = async (index: number) => {
         </div>
       </div>
     </div>
+
+    <BankTransferModal v-model:open="showBankModal" />
   </div>
 </template>
 

@@ -2,6 +2,7 @@
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
+const showBankModal = ref(false)
 
 useHead({
   title: 'Shopping Cart',
@@ -20,6 +21,13 @@ function decrement(id: number, currentQuantity: number) {
 
 function remove(id: number) {
   cartStore.removeFromCart(id)
+}
+
+async function handleCheckout() {
+  const success = await cartStore.checkout()
+  if (success) {
+    showBankModal.value = true
+  }
 }
 </script>
 
@@ -119,7 +127,7 @@ function remove(id: number) {
           </dl>
 
           <div class="mt-6">
-            <UButton block size="lg" @click="cartStore.checkout()">
+            <UButton block size="lg" @click="handleCheckout">
               Checkout
             </UButton>
           </div>
@@ -143,5 +151,7 @@ function remove(id: number) {
         </div>
       </div>
     </div>
+
+    <BankTransferModal v-model:open="showBankModal" />
   </div>
 </template>

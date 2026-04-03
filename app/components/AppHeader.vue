@@ -12,13 +12,13 @@ const navItems = [
   // { label: 'Projects', to: '/projects' },
   // { label: 'Speaking', to: '/speaking' },
   // { label: 'Blog', to: '/blog' },
-  // { label: 'Products', to: '/products' },
-  // { label: 'My Orders', to: '/orders' }
+  { label: 'Products', to: '/products' },
+  { label: 'My Orders', to: '/orders' }
 ]
 </script>
 
 <template>
-  <div v-if="false" class="fixed top-2 sm:top-4 mx-auto left-1/2 transform -translate-x-1/2 z-10">
+  <div class="fixed top-2 sm:top-4 mx-auto left-1/2 transform -translate-x-1/2 z-10">
     <nav
       class="bg-muted/80 backdrop-blur-sm rounded-full px-2 sm:px-4 border border-muted/50 shadow-lg shadow-neutral-950/5"
     >

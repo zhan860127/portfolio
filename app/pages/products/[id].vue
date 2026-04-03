@@ -25,8 +25,13 @@ useHead({
     { name: 'description', content: product.value?.description || 'Product details' }
   ]
 })
-
+const { loggedIn } = useUserSession()
 function addToCart() {
+
+  if (!loggedIn.value) {
+    navigateTo('/auth/google', { external: true })
+    return;
+  }
   if (product.value) {
     cartStore.addToCart(product.value)
     toast.add({
@@ -37,6 +42,7 @@ function addToCart() {
     })
   }
 }
+
 </script>
 
 <template>
@@ -52,7 +58,7 @@ function addToCart() {
               loop
               arrows
               dots
-              :autoplay="{ delay: 1000 }"
+              :autoplay="{ delay: 3000 }"
 
               :items="product.image" class="w-full max-w-xs mx-auto" >
             <img
@@ -92,8 +98,8 @@ function addToCart() {
           <div class="mt-10 flex sm:flex-col1">
             <UButton
               size="xl"
-              block
-              @click="addToCart"
+              external
+              @click= addToCart()
             >
               Add to cart
             </UButton>
