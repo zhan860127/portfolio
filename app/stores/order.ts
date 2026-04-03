@@ -65,17 +65,11 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  const getOrders = () => {
-    return computed(() => orders.value)
-  }
-
   return {
     orders,
     loading,
     error,
     fetchOrders,
-    getOrders,
     updateOrderStatus
   }
 })
-

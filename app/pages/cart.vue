@@ -2,6 +2,7 @@
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
+const toast = useToast()
 const showBankModal = ref(false)
 
 useHead({
@@ -11,22 +12,25 @@ useHead({
   ]
 })
 
-function increment(id: number, currentQuantity: number) {
+function increment(id: string, currentQuantity: number) {
   cartStore.updateQuantity(id, currentQuantity + 1)
 }
 
-function decrement(id: number, currentQuantity: number) {
+function decrement(id: string, currentQuantity: number) {
   cartStore.updateQuantity(id, currentQuantity - 1)
 }
 
-function remove(id: number) {
+function remove(id: string) {
   cartStore.removeFromCart(id)
 }
 
 async function handleCheckout() {
-  const success = await cartStore.checkout()
-  if (success) {
+  try {
+    await cartStore.checkout()
     showBankModal.value = true
+  } catch (error: any) {
+    const msg = error?.data?.message || 'Checkout failed. Please try again.'
+    toast.add({ title: 'Checkout failed', description: msg, color: 'error', icon: 'i-heroicons-x-circle' })
   }
 }
 </script>
@@ -48,7 +52,7 @@ async function handleCheckout() {
             <li v-for="item in cartStore.items" :key="item.id" class="flex py-6 sm:py-10">
               <div class="flex-shrink-0">
                 <img
-                  :src="item.image"
+                  :src="item.image?.[0]?.src"
                   :alt="item.title"
                   class="w-24 h-24 rounded-md object-center object-cover sm:w-48 sm:h-48"
                 >
@@ -74,7 +78,7 @@ async function handleCheckout() {
                       <UButton
                         icon="i-heroicons-minus"
                         size="xs"
-                        color="gray"
+                        color="neutral"
                         variant="ghost"
                         @click="decrement(item.id, item.quantity)"
                       />
@@ -82,7 +86,7 @@ async function handleCheckout() {
                       <UButton
                         icon="i-heroicons-plus"
                         size="xs"
-                        color="gray"
+                        color="neutral"
                         variant="ghost"
                         @click="increment(item.id, item.quantity)"
                       />
@@ -92,7 +96,7 @@ async function handleCheckout() {
                       <UButton
                         icon="i-heroicons-trash"
                         size="sm"
-                        color="red"
+                        color="error"
                         variant="ghost"
                         @click="remove(item.id)"
                       >

@@ -6,6 +6,7 @@ const props = defineProps<{
 }>()
 
 const scheduleStore = useScheduleStore()
+const { isEnabled } = useFeatureFlags()
 
 // 從 scheduledata 讀取 marketName、time，依 city 分組
 const groupedExperience = computed(() => {
@@ -52,7 +53,7 @@ const groupedExperience = computed(() => {
               :in-view-options="{ once: true }" class="text-muted flex items-center flex-wrap gap-2">
 
 
-              <ULink v-if="experience.company.url && experience.company.url !== '#'" class="flex items-center gap-1"
+              <ULink v-if="isEnabled('experienceLinks') && experience.company.url && experience.company.url !== '#'" class="flex items-center gap-1"
                 :to="experience.company.url" target="_blank">
                 <div class="inline-flex items-center gap-1">
                   <span class="font-medium text-lg">{{

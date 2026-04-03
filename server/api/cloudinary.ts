@@ -1,27 +1,13 @@
-import { v2 as cloudinary } from 'cloudinary'
+export default defineEventHandler(async () => {
+  const cloudinary = useCloudinary()
 
-export default defineEventHandler(async (event) => {
-  
-  const config = useRuntimeConfig().cloudinary
-
-  cloudinary.config({
-    cloud_name: config.cloudName,
-    api_key: config.apiKey,
-    api_secret: config.apiSecret,
-    secure: true,
-  })
-  
   try {
-    const result = await cloudinary.api.resources({
+    return await cloudinary.api.resources({
       type: 'upload',
-      max_results: 30,
+      max_results: 30
     })
-
-    
-    return result
   } catch (error) {
-    
-    
-    return { error: 'Failed to fetch resources from Cloudinary' }
+    console.error('Cloudinary resources error:', error)
+    throw createError({ statusCode: 500, message: 'Failed to fetch resources from Cloudinary' })
   }
 })

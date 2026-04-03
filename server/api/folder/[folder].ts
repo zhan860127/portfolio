@@ -1,26 +1,11 @@
-import { v2 as cloudinary } from 'cloudinary'
-
 export default defineEventHandler(async (event) => {
-  const path = getRouterParam(event, 'folder') ?? "tran"
-
-  const config = useRuntimeConfig().cloudinary
-
-  cloudinary.config({
-    cloud_name: config.cloudName,
-    api_key: config.apiKey,
-    api_secret: config.apiSecret,
-    secure: true,
-  })
+  const path = getRouterParam(event, 'folder') ?? 'tran'
+  const cloudinary = useCloudinary()
 
   try {
-    const result = await cloudinary.api.sub_folders(path);
-
-
-
-    return result
+    return await cloudinary.api.sub_folders(path)
   } catch (error) {
-
-
-    return { error: 'Failed to fetch resources from Cloudinary' }
+    console.error('Cloudinary sub_folders error:', error)
+    throw createError({ statusCode: 500, message: 'Failed to fetch folders from Cloudinary' })
   }
 })

@@ -18,8 +18,6 @@ interface InstagramPost {
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
-  console.log("config.INSTAGRAM_ACCESS_TOKEN", config.instagramAccessToken);
-  // 這裡列出你要顯示的公開 IG 貼文 URL
   const postUrls = [
     'https://www.instagram.com/p/DJRQsvxTOux/',
     'https://www.instagram.com/p/DJHLgQUT6wU/',
@@ -30,7 +28,7 @@ export default defineEventHandler(async () => {
     'https://www.instagram.com/p/DAqRYzDzZb4/',
     'https://www.instagram.com/p/DAlKzY9TpHB/',
     'https://www.instagram.com/p/DAgEkwoz-Cq/',
-    'https://www.instagram.com/p/DAdkaXAzv4R/'  ,
+    'https://www.instagram.com/p/DAdkaXAzv4R/'
   ]
 
   const posts: InstagramPost[] = await Promise.all(
@@ -40,7 +38,7 @@ export default defineEventHandler(async () => {
           params: {
             url: url,
             omitscript: 'true',
-            access_token: `${config.instagramAccessToken}`
+            access_token: config.instagramAccessToken
           }
         })
         return {

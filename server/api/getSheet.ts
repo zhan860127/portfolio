@@ -1,29 +1,9 @@
-import { google } from "googleapis";
-import { readFileSync } from "node:fs";
-
-
-const config = useRuntimeConfig();
-
-const credentialsPath = config.googleCredentialsPath;
-
-if (!credentialsPath) {
-    throw new Error("Missing Google credentials path");
-}
-
-const credentials = JSON.parse(credentialsPath);
-
-
 export default defineEventHandler(async (event) => {
-    const query = getQuery(event);
-    const range = query.range as string;
-    const spreadsheetId = config.googleSpreadsheetId;
-    const auth = new google.auth.GoogleAuth({
-        credentials,
-        scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    });
+  const query = getQuery(event)
+  const range = query.range as string
 
-    const sheets = google.sheets({ version: "v4", auth });
-    const response = await sheets.spreadsheets.values.get({ spreadsheetId: config.googleSpreadsheetId, range });
+  const { sheets, spreadsheetId } = useGoogleSheets('readonly')
+  const response = await sheets.spreadsheets.values.get({ spreadsheetId, range })
 
-    return response.data.values ?? [];
-});
+  return response.data.values ?? []
+})

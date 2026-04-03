@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
-
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
@@ -55,7 +53,7 @@ const navItems = [
         <div v-if="loggedIn" class="flex items-center gap-2 ml-2">
           <UAvatar :src="user?.avatar" :alt="user?.name" size="xs" />
           <UButton
-            color="gray"
+            color="neutral"
             variant="ghost"
             size="xs"
             icon="i-heroicons-arrow-right-on-rectangle"
@@ -67,7 +65,7 @@ const navItems = [
           to="/auth/google"
           external
           icon="i-simple-icons-google"
-          color="gray"
+          color="neutral"
           variant="ghost"
           size="xs"
           class="ml-2"

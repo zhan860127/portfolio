@@ -2,63 +2,67 @@ import { defineStore } from 'pinia'
 import type { Product } from '~/stores/product'
 
 export interface CartItem extends Product {
-    quantity: number
+  quantity: number
 }
 
-export const useCartStore = defineStore('cart', {
-    state: () => ({
-        items: [] as CartItem[],
-    }),
-    getters: {
-        cartTotal: (state) => {
-            return state.items.reduce((total, item) => total + Number(item.price) * item.quantity, 0)
-        },
-        itemCount: (state) => {
-            return state.items.reduce((count, item) => count + item.quantity, 0)
-        },
-    },
-    actions: {
-        addToCart(product: Product) {
-            const existingItem = this.items.find((item) => item.id === product.id)
-            if (existingItem) {
-                existingItem.quantity++
-            } else {
-                this.items.push({ ...product, quantity: 1 })
-            }
-        },
-        removeFromCart(productId: string) {
-            const index = this.items.findIndex((item) => item.id === productId)
-            if (index !== -1) {
-                this.items.splice(index, 1)
-            }
-        },
-        updateQuantity(productId: string, quantity: number) {
-            const item = this.items.find((item) => item.id === productId)
-            if (item) {
-                item.quantity = quantity
-                if (item.quantity <= 0) {
-                    this.removeFromCart(productId)
-                }
-            }
-        },
-        clearCart() {
-            this.items = []
-        },
-        async checkout() {
-            try {
-                await $fetch('/api/checkout', {
-                    method: 'POST',
-                    body: {
-                        amount: this.cartTotal,
-                        items: this.items,
-                    }
-                })
-                this.clearCart()
-                alert('Order placed successfully!')
-            } catch (error) {
-                console.error('Checkout failed:', error)
-                alert('Checkout failed. Please try again.')
-            }
-        },
-    },
+export const useCartStore = defineStore('cart', () => {
+  const items = ref<CartItem[]>([])
+
+  const cartTotal = computed(() =>
+    items.value.reduce((total, item) => total + Number(item.price) * item.quantity, 0)
+  )
+
+  const itemCount = computed(() =>
+    items.value.reduce((count, item) => count + item.quantity, 0)
+  )
+
+  function addToCart(product: Product) {
+    const existing = items.value.find((item) => item.id === product.id)
+    if (existing) {
+      existing.quantity++
+    } else {
+      items.value.push({ ...product, quantity: 1 })
+    }
+  }
+
+  function removeFromCart(productId: string) {
+    const index = items.value.findIndex((item) => item.id === productId)
+    if (index !== -1) {
+      items.value.splice(index, 1)
+    }
+  }
+
+  function updateQuantity(productId: string, quantity: number) {
+    const item = items.value.find((i) => i.id === productId)
+    if (item) {
+      item.quantity = quantity
+      if (item.quantity <= 0) {
+        removeFromCart(productId)
+      }
+    }
+  }
+
+  function clearCart() {
+    items.value = []
+  }
+
+  async function checkout(): Promise<boolean> {
+    await $fetch('/api/checkout', {
+      method: 'POST',
+      body: { amount: cartTotal.value, items: items.value }
+    })
+    clearCart()
+    return true
+  }
+
+  return {
+    items,
+    cartTotal,
+    itemCount,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    checkout
+  }
 })

@@ -11,9 +11,9 @@ onMounted(async () => {
   if (svgRef.value) {
     // 拿到原生 svg DOM
     const svgEl = (svgRef.value as any).$el as SVGSVGElement
-  for(let s of scheduleStore.getSchedule().value){
-    const north = svgEl.querySelectorAll(`#${s.id}`) 
     
+    for(let s of scheduleStore.schedule){
+    const north = svgEl.querySelectorAll(`#${s.id}`) 
     for(let k of north){
         k.classList.add("lable")
         k.classList.add("show")

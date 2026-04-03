@@ -95,11 +95,10 @@ function addToCart() {
             </div>
           </div>
 
-          <div class="mt-10 flex sm:flex-col1">
+          <div class="mt-10 flex">
             <UButton
               size="xl"
-              external
-              @click= addToCart()
+              @click="addToCart()"
             >
               Add to cart
             </UButton>

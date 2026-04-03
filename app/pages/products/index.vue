@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useProductStore } from '~/stores/product';
-
+import { useProductStore } from '~/stores/product'
 
 const productStore = useProductStore()
 
@@ -35,12 +34,17 @@ useHead({
         >
           <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800 xl:aspect-w-7 xl:aspect-h-8">
             <img
-              :src="product.image?.[0]?.src"
+              v-if="product.image?.[0]?.src"
+              :src="product.image[0].src"
               :alt="product.title"
               class="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity duration-300 block"
-              onerror="this.style.opacity='0'"
-
             >
+            <div
+              v-else
+              class="h-full w-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm"
+            >
+              目前沒有商品照片
+            </div>
           </div>
           <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             {{ product.title }}
