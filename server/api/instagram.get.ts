@@ -36,7 +36,7 @@ export default defineEventHandler(async () => {
   const posts: InstagramPost[] = await Promise.all(
     postUrls.map(async (url) => {
       try {
-        const response = await $fetch(`https://graph.facebook.com/v19.0/instagram_oembed`, {
+        const response = await $fetch(`https://graph.facebook.com/v25.0/instagram_oembed`, {
           params: {
             url: url,
             omitscript: 'true',
