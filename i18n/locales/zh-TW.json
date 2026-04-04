@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "home": "首頁",
+    "products": "商品",
+    "orders": "訂單",
+    "login": "登入",
+    "toggleNav": "切換選單"
+  },
+  "products": {
+    "title": "商品列表",
+    "subtitle": "用心挑選，為你的生活增添美好。",
+    "noImage": "目前沒有商品照片",
+    "notFound": "找不到此商品",
+    "backToProducts": "返回商品列表",
+    "addToCart": "加入購物車",
+    "addedToCart": "已加入購物車",
+    "addedToCartDesc": "{title} 已加入您的購物車。",
+    "productInfo": "商品資訊",
+    "description": "商品描述",
+    "metaDesc": "瀏覽我們精選的手作商品。"
+  },
+  "cart": {
+    "title": "購物車",
+    "itemsInCart": "購物車中的商品",
+    "remove": "移除",
+    "orderSummary": "訂單摘要",
+    "orderTotal": "訂單總計",
+    "checkout": "結帳",
+    "empty": "購物車是空的",
+    "emptyDesc": "開始選購，將喜歡的商品加入購物車吧。",
+    "continueShopping": "繼續選購",
+    "checkoutFailed": "結帳失敗",
+    "checkoutFailedDesc": "結帳失敗，請稍後再試。",
+    "metaDesc": "查看您的購物車。"
+  },
+  "orders": {
+    "title": "我的訂單",
+    "loginRequired": "請先登入以查看您的訂單。",
+    "loginWithGoogle": "使用 Google 登入",
+    "loading": "正在載入您的訂單⋯",
+    "noOrders": "您目前沒有任何訂單。",
+    "startShopping": "開始選購",
+    "orderTime": "訂單時間",
+    "totalAmount": "訂單金額",
+    "items": "商品明細",
+    "na": "無資料",
+    "viewBankInfo": "查看匯款資訊",
+    "submitPayment": "送出匯款資訊",
+    "paymentPlaceholder": "匯款末五碼",
+    "paymentError": "請輸入正確的匯款末五碼（5 位數字）",
+    "paymentFailed": "更新失敗，請稍後再試一次",
+    "metaDesc": "查看您的歷史訂單。"
+  },
+  "blog": {
+    "back": "文章",
+    "minRead": "分鐘閱讀",
+    "copyLink": "複製連結",
+    "linkCopied": "文章連結已複製到剪貼簿"
+  },
+  "bank": {
+    "title": "匯款資訊",
+    "description": "請依照以下帳戶資訊完成匯款，匯款後請於訂單頁面填寫末五碼以便確認。",
+    "accountName": "戶名",
+    "bankName": "銀行",
+    "accountNumber": "帳號",
+    "confirm": "我知道了"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "orders": "Orders",
+    "login": "Login",
+    "toggleNav": "Toggle navigation"
+  },
+  "products": {
+    "title": "Our Products",
+    "subtitle": "Carefully curated items for your lifestyle.",
+    "noImage": "No product photo available",
+    "notFound": "Product not found",
+    "backToProducts": "Back to Products",
+    "addToCart": "Add to Cart",
+    "addedToCart": "Added to cart",
+    "addedToCartDesc": "{title} has been added to your cart.",
+    "productInfo": "Product information",
+    "description": "Description",
+    "metaDesc": "Browse our collection of premium products."
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "itemsInCart": "Items in your shopping cart",
+    "remove": "Remove",
+    "orderSummary": "Order Summary",
+    "orderTotal": "Order Total",
+    "checkout": "Checkout",
+    "empty": "Cart is empty",
+    "emptyDesc": "Start shopping to add items to your cart.",
+    "continueShopping": "Continue Shopping",
+    "checkoutFailed": "Checkout failed",
+    "checkoutFailedDesc": "Checkout failed. Please try again.",
+    "metaDesc": "Review your shopping cart."
+  },
+  "orders": {
+    "title": "My Orders",
+    "loginRequired": "Please log in to view your orders.",
+    "loginWithGoogle": "Login with Google",
+    "loading": "Loading your orders...",
+    "noOrders": "You don't have any orders yet.",
+    "startShopping": "Start Shopping",
+    "orderTime": "Order time",
+    "totalAmount": "Total amount",
+    "items": "Items",
+    "na": "N/A",
+    "viewBankInfo": "View Bank Transfer Info",
+    "submitPayment": "Submit Payment Info",
+    "paymentPlaceholder": "Last 5 digits",
+    "paymentError": "Please enter valid 5 digits",
+    "paymentFailed": "Update failed. Please try again later.",
+    "metaDesc": "View your past orders."
+  },
+  "blog": {
+    "back": "Blog",
+    "minRead": "MIN READ",
+    "copyLink": "Copy link",
+    "linkCopied": "Article link copied to clipboard"
+  },
+  "bank": {
+    "title": "Bank Transfer Info",
+    "description": "Please complete the transfer using the account details below, then enter the last 5 digits of the transfer on the orders page.",
+    "accountName": "Account Name",
+    "bankName": "Bank",
+    "accountNumber": "Account Number",
+    "confirm": "Got it"
+  }
+}

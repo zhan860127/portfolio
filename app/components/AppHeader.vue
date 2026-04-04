@@ -3,76 +3,185 @@ import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
 const { loggedIn, user, clear } = useUserSession()
+const route = useRoute()
+
+const isExpanded = ref(true)
+const contentRef = ref<HTMLElement>()
+const navRef = ref<HTMLElement>()
+
+function createSpring(stiffness = 300, damping = 26) {
+  const current = ref(0)
+  let tgt = 0
+  let vel = 0
+  let raf: number | null = null
+
+  function tick() {
+    const dx = current.value - tgt
+    vel += (-stiffness * dx - damping * vel) / 60
+    current.value += vel / 60
+    if (Math.abs(vel) < 0.1 && Math.abs(dx) < 0.5) {
+      current.value = tgt
+      vel = 0
+      raf = null
+      return
+    }
+    raf = requestAnimationFrame(tick)
+  }
+
+  return {
+    current,
+    animateTo(v: number) { tgt = v; if (!raf) raf = requestAnimationFrame(tick) },
+    snapTo(v: number) { tgt = v; current.value = v; vel = 0; if (raf) { cancelAnimationFrame(raf); raf = null } },
+    cleanup() { if (raf) cancelAnimationFrame(raf) }
+  }
+}
+
+const widthSpring = createSpring(300, 26)
+const offsetSpring = createSpring(200, 24)
+
+function measure() {
+  const el = contentRef.value
+  if (!el) return 0
+  const prev = el.style.width
+  el.style.width = 'auto'
+  const w = el.scrollWidth
+  el.style.width = prev
+  return w
+}
+
+function isMobile() { return window.innerWidth < 640 }
+
+function btnWidth() {
+  return navRef.value?.querySelector('button')?.offsetWidth ?? 32
+}
+
+function capWidth(raw: number) {
+  const pad = isMobile() ? 12 : 16
+  return Math.min(raw, window.innerWidth - pad * 2 - btnWidth())
+}
+
+function centerOffset(contentW: number) {
+  if (isMobile()) return 0
+  const pad = 16
+  return Math.max(0, (window.innerWidth - btnWidth() - contentW) / 2 - pad)
+}
+
+function apply(open: boolean, snap = false) {
+  const w = open ? capWidth(measure()) : 0
+  const x = open ? centerOffset(w) : 0
+  if (snap) { widthSpring.snapTo(w); offsetSpring.snapTo(x) }
+  else { widthSpring.animateTo(w); offsetSpring.animateTo(x) }
+}
+
+watch(isExpanded, (open) => apply(open))
+watch(loggedIn, () => { if (isExpanded.value) nextTick(() => apply(true)) })
+
+onMounted(() => {
+  nextTick(() => {
+    if (isMobile()) { isExpanded.value = false; apply(false, true) }
+    else { apply(true, true) }
+  })
+})
+
+watch(() => route.fullPath, () => {
+  if (import.meta.client && isMobile()) isExpanded.value = false
+})
+
+onUnmounted(() => { widthSpring.cleanup(); offsetSpring.cleanup() })
 
 const navItems = [
   { label: 'Home', to: '/' },
-  // { label: 'About', to: '/about' },
-  // { label: 'Projects', to: '/projects' },
-  // { label: 'Speaking', to: '/speaking' },
-  // { label: 'Blog', to: '/blog' },
   { label: 'Products', to: '/products' },
-  { label: 'My Orders', to: '/orders' }
+  { label: 'Orders', to: '/orders' }
 ]
 </script>
 
 <template>
-  <div class="fixed top-2 sm:top-4 mx-auto left-1/2 transform -translate-x-1/2 z-10">
+  <div class="fixed top-2 sm:top-4 inset-x-0 z-10 flex justify-start px-3 sm:px-4 pointer-events-none">
     <nav
-      class="bg-muted/80 backdrop-blur-sm rounded-full px-2 sm:px-4 border border-muted/50 shadow-lg shadow-neutral-950/5"
+      ref="navRef"
+      class="pointer-events-auto flex items-center bg-muted/80 backdrop-blur-sm rounded-full border border-muted/50 shadow-lg shadow-neutral-950/5"
+      :style="{ transform: `translateX(${offsetSpring.current.value}px)` }"
     >
-      <div class="flex items-center gap-2">
-        <NuxtLink
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-          active-class="bg-gray-100 dark:bg-gray-800"
+      <button
+        class="relative flex-shrink-0 inline-flex items-center justify-center size-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+        aria-label="Toggle navigation"
+        @click="isExpanded = !isExpanded"
+      >
+        <UIcon name="i-heroicons-bars-3" class="w-5 h-5" />
+        <span
+          v-if="!isExpanded && loggedIn && cartStore.itemCount > 0"
+          class="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
         >
-          {{ item.label }}
-        </NuxtLink>
+          {{ cartStore.itemCount }}
+        </span>
+      </button>
 
-    
-
-        <NuxtLink
-          v-if="loggedIn"
-          to="/cart"
-          class="relative px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-          active-class="bg-gray-100 dark:bg-gray-800"
-        >
-          <UIcon name="i-heroicons-shopping-cart" class="w-5 h-5" />
-          <span
-            v-if="cartStore.itemCount > 0"
-            class="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+      <div
+        ref="contentRef"
+        class="overflow-hidden scrollbar-hide"
+        :style="{ width: widthSpring.current.value + 'px' }"
+      >
+        <div class="flex items-center gap-1 sm:gap-2 pr-2">
+          <NuxtLink
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="flex-shrink-0 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap"
+            active-class="bg-gray-100 dark:bg-gray-800"
           >
-            {{ cartStore.itemCount }}
-          </span>
-        </NuxtLink>
+            {{ item.label }}
+          </NuxtLink>
 
-        <ColorModeButton />
-        
-        <div v-if="loggedIn" class="flex items-center gap-2 ml-2">
-          <UAvatar :src="user?.avatar" :alt="user?.name" size="xs" />
+          <NuxtLink
+            v-if="loggedIn"
+            to="/cart"
+            class="relative flex-shrink-0 inline-flex items-center justify-center size-8 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+            active-class="bg-gray-100 dark:bg-gray-800"
+          >
+            <UIcon name="i-heroicons-shopping-cart" class="w-5 h-5" />
+            <span
+              v-if="cartStore.itemCount > 0"
+              class="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+            >
+              {{ cartStore.itemCount }}
+            </span>
+          </NuxtLink>
+
+          <div v-if="loggedIn" class="flex items-center gap-2 flex-shrink-0 ml-1">
+            <UAvatar :src="user?.avatar" :alt="user?.name" size="xs" />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              icon="i-heroicons-arrow-right-on-rectangle"
+              @click="clear"
+            />
+          </div>
           <UButton
+            v-else
+            to="/auth/google"
+            external
+            icon="i-simple-icons-google"
             color="neutral"
             variant="ghost"
             size="xs"
-            icon="i-heroicons-arrow-right-on-rectangle"
-            @click="clear"
-          />
+            class="ml-1 flex-shrink-0"
+          >
+            Login
+          </UButton>
         </div>
-        <UButton
-          v-else
-          to="/auth/google"
-          external
-          icon="i-simple-icons-google"
-          color="neutral"
-          variant="ghost"
-          size="xs"
-          class="ml-2"
-        >
-          Login
-        </UButton>
       </div>
     </nav>
   </div>
 </template>
+
+<style scoped>
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+</style>

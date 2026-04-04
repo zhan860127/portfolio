@@ -8,11 +8,21 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/content',
     '@vueuse/nuxt',
-    '@pinia/nuxt',  // 添加 Pinia 模組
+    '@pinia/nuxt',
     'nuxt-og-image',
     'motion-v/nuxt',
-    'nuxt-auth-utils'
+    'nuxt-auth-utils',
+    '@nuxtjs/i18n'
   ],
+  i18n: {
+    locales: [
+      { code: 'zh-TW', name: '中文', file: 'zh-TW.json' },
+      { code: 'en', name: 'English', file: 'en.json' }
+    ],
+    defaultLocale: 'zh-TW',
+    langDir: 'locales',
+    strategy: 'no_prefix'
+  },
   image: {
     // 確保 provider 是預設的 ipx 或 vercel
     provider: process.env.VERCEL ? 'vercel' : 'ipx',
@@ -85,7 +95,14 @@ export default defineNuxtConfig({
     },
     googleCredentialsPath: process.env.NUXT_GOOGLE_APPLICATION_CREDENTIALS_JSON || `./secrets/credentials.json`,
     googleSpreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
-    instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN
+    instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
+    // Feature flags - override via NUXT_PUBLIC_FEATURE_FLAGS_* env vars
+    public: {
+      featureFlags: {
+        /** 市集經驗區塊的公司連結是否可點擊 */
+        experienceLinks: process.env.NUXT_PUBLIC_FEATURE_FLAGS_EXPERIENCE_LINKS !== 'false'
+      }
+    }
   }
 
 })

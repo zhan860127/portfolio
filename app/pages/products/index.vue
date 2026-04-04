@@ -32,7 +32,7 @@ useHead({
           :to="`/products/${product.id}`"
           class="group relative"
         >
-          <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800 xl:aspect-w-7 xl:aspect-h-8">
+          <div class="aspect-square xl:aspect-[7/8] w-full overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800">
             <img
               v-if="product.image?.[0]?.src"
               :src="product.image[0].src"
