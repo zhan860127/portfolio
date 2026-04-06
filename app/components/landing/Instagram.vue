@@ -18,6 +18,8 @@ const props = defineProps<{
   page: IndexCollectionItem & InstagramSection
 }>()
 
+const { t } = useI18n()
+
 const instagramUrl = computed(
   () => props.page.instagram?.url ?? 'https://www.instagram.com/tranquil._.island/'
 )
@@ -60,12 +62,12 @@ const groups = computed<InstagramPost[][]>(() => {
         color="neutral"
         variant="solid"
         icon="i-simple-icons-instagram"
-        label="前往 Instagram"
+        :label="t('landing.goToInstagram')"
       />
     </div>
 
     <div v-if="pending">
-      <p class="text-sm text-muted">載入 Instagram 貼文中...</p>
+      <p class="text-sm text-muted">{{ $t('landing.loadingInstagram') }}</p>
     </div>
 
     <div v-else-if="groups.length === 0">

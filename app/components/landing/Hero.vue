@@ -85,7 +85,7 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
           delay: 0.1
         }"
       >
-        {{ page.title }}
+        <!-- {{ page.title }} -->
       </Motion>
     </template>
 
@@ -106,7 +106,7 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
           delay: 0.3
         }"
       >
-        {{ page.description }}
+        <!-- {{ page.description }} -->
       </Motion>
     </template>
 

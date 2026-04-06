@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { IndexCollectionItem } from '@nuxt/content'
 
+const { t } = useI18n()
+
 defineProps<{
   page: IndexCollectionItem
 }>()
@@ -45,7 +47,7 @@ if (!posts.value) {
             size="xs"
             variant="link"
             class="px-0 gap-0"
-            label="Read Article"
+            :label="t('landing.readArticle')"
           >
             <template #trailing>
               <UIcon

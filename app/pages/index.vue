@@ -1,7 +1,12 @@
 <script setup lang="ts">
+const { locale } = useI18n()
+
+const contentPath = computed(() => locale.value === 'zh-TW' ? '/' : '/index.en')
+
 const { data: page } = await useAsyncData('index', () => {
-  return queryCollection('index').first()
-})
+  return queryCollection('index').path(contentPath.value).first()
+}, { watch: [locale] })
+
 if (!page.value) {
   throw createError({
     statusCode: 404,
@@ -12,24 +17,24 @@ if (!page.value) {
 
 const seo = computed(() => page.value?.seo || {})
 const siteUrl = useRequestURL().origin
+const ogLocale = computed(() => locale.value === 'zh-TW' ? 'zh_TW' : 'en_US')
 
 useSeoMeta({
-  title: seo.value.title || page.value?.title,
-  description: seo.value.description || page.value?.description,
-  ogTitle: seo.value.title || page.value?.title,
-  ogDescription: seo.value.description || page.value?.description,
-  ogImage: seo.value.ogImage || 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg',
+  title: () => seo.value.title || page.value?.title,
+  description: () => seo.value.description || page.value?.description,
+  ogTitle: () => seo.value.title || page.value?.title,
+  ogDescription: () => seo.value.description || page.value?.description,
+  ogImage: () => seo.value.ogImage || 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg',
   ogUrl: siteUrl,
   ogType: 'website',
-  ogLocale: 'zh_TW',
+  ogLocale: () => ogLocale.value,
   twitterCard: 'summary_large_image',
-  twitterTitle: seo.value.title || page.value?.title,
-  twitterDescription: seo.value.description || page.value?.description,
-  twitterImage: seo.value.ogImage || 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg'
+  twitterTitle: () => seo.value.title || page.value?.title,
+  twitterDescription: () => seo.value.description || page.value?.description,
+  twitterImage: () => seo.value.ogImage || 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg'
 })
 
-// JSON-LD 結構化資料 - 在地商家/品牌
-const jsonLd = {
+const jsonLd = computed(() => ({
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
   name: '清嶼 Tranquil Island',
@@ -38,13 +43,13 @@ const jsonLd = {
   image: seo.value.ogImage || 'https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg',
   sameAs: ['https://www.instagram.com/tranquil._.island/'],
   keywords: seo.value.keywords || '手作陶瓷,陶藝,手捏,盤築,手感器皿,文創陶瓷'
-}
+}))
 
 useHead({
-  htmlAttrs: { lang: 'zh-TW' },
-  meta: seo.value.keywords ? [{ name: 'keywords', content: String(seo.value.keywords) }] : [],
+  htmlAttrs: { lang: () => locale.value },
+  meta: () => seo.value.keywords ? [{ name: 'keywords', content: String(seo.value.keywords) }] : [],
   link: [{ rel: 'canonical', href: siteUrl }],
-  script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(jsonLd) }]
+  script: () => [{ type: 'application/ld+json', innerHTML: JSON.stringify(jsonLd.value) }]
 })
 </script>
 

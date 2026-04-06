@@ -4,7 +4,7 @@ const colorMode = useColorMode()
 
 </script>
 <template>
-<svg baseprofile="tiny" :fill="color" height="auto" stroke="#a7be8c" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" version="1.2" viewbox="-300 0 1000 1000" width="100%" xmlns="http://www.w3.org/2000/svg">
+<svg baseProfile="tiny" :fill="color" stroke="#a7be8c" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" version="1.2" viewBox="-300 0 1000 1000" preserveAspectRatio="xMidYMid meet" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
 
  <g>
   <title>Layer 1</title>

@@ -1,13 +1,15 @@
+# title: "Tranquil Island"
+# description: "Handcrafted ceramics brand — transforming nature, memory, and the textures of life into vessels."
 seo:
-  title: "清嶼 Tranquil Island"
-  description: "「美好生活，是與內心寧靜相遇。」清嶼是於 2023 年以文創陶瓷產品為主創立的品牌，專注手作陶瓷、手捏陶藝、手感器皿。希望在喧囂的生活中找到一座與世隔絕的島嶼，將這份美好和寧靜帶給每一位顧客。"
-  keywords: "清嶼, Tranquil Island, 手作陶瓷, 陶藝, 手捏, 盤築, 手感器皿, 文創陶瓷, 柴燒釉"
+  title: "Tranquil Island — Handcrafted Ceramics"
+  description: "\"A beautiful life begins where inner peace is found.\" Tranquil Island is a handcrafted ceramics brand founded in 2023, specializing in hand-pinched pottery and artisan vessels — bringing tranquility and beauty to everyday life."
+  keywords: "Tranquil Island, handmade ceramics, pottery, hand-pinched, coil-built, artisan vessels, creative ceramics, wood-fired glaze"
   ogImage: "https://res.cloudinary.com/dzribeyus/image/upload/v1761200635/5-att_lqpkla.jpg"
   ogType: "website"
 map:
   images:
     - src: /hero/tw.svg
-      alt: 台灣地圖
+      alt: Map of Taiwan
 hero:
   links:
     - label: "Use this template"
@@ -15,77 +17,63 @@ hero:
       color: "neutral"
   images:
     - src: /hero/random-1.avif
-      alt: 清嶼手作陶瓷作品 - 手捏陶藝
+      alt: Tranquil Island handcrafted ceramics — hand-pinched pottery
     - src: /hero/random-2.avif
-      alt: 清嶼 Tranquil Island 手感器皿
+      alt: Tranquil Island artisan vessels
     - src: /hero/random-3.avif
-      alt: 清嶼陶藝創作 - 盤築技法
+      alt: Tranquil Island ceramic art — coil-building technique
     - src: /hero/random-4.avif
-      alt: 清嶼手作陶瓷 - 自然釉色
+      alt: Tranquil Island handmade ceramics — natural glaze
     - src: /hero/random-5.avif
-      alt: 清嶼手捏陶器作品
+      alt: Tranquil Island hand-pinched pottery
     - src: /hero/random-6.avif
-      alt: 清嶼文創陶瓷 - 生活器物
+      alt: Tranquil Island creative ceramics — everyday objects
     - src: /hero/random-7.avif
-      alt: 清嶼陶藝 - 自然釉色
+      alt: Tranquil Island pottery — natural glaze
     - src: /hero/random-8.avif
-      alt: 清嶼手作陶瓷器皿
+      alt: Tranquil Island handmade ceramic vessels
     - src: /hero/random-9.avif
-      alt: 清嶼 Tranquil Island 陶藝作品
+      alt: Tranquil Island ceramic artwork
 about:
-  title: "關於我"
+  title: "About Me"
   quote: |
-    每一件器物
-    都來自雙手與土地的相遇，
-    也回到生活之中。
+    Every piece
+    is born from the meeting of hands and earth,
+    and returns to life.
   materials:
     title: "Materials"
-    tags: ["陶土", "手捏","陶藝創作","手感器皿"]
+    tags: ["Clay", "Hand-pinched", "Ceramic art", "Artisan vessels"]
   description: |
-    清嶼是一個以手作陶瓷為核心的創作品牌，專注於將自然、記憶與生活感受轉化為器物。創作者以陶土為媒介，透過手捏、盤築與釉色實驗，讓每一件作品都保留手作的溫度與時間的痕跡。
-    創作靈感多來自成長於農村的記憶——田野、植物、季節與土地的氣息，這些元素在器物與小型雕塑中被重新詮釋。清嶼希望透過陶瓷，讓日常生活中的使用器物不只是功能性的存在，也能成為承載情感與故事的媒介。
-    每一件作品皆為手工製作，從塑形到上釉皆由創作者親自完成，使每件作品都保有獨特性與自然的細節。
+    Tranquil Island is a creative brand centered on handcrafted ceramics, dedicated to transforming nature, memory, and the textures of everyday life into vessels. Using clay as a medium, the creator shapes each piece through hand-pinching, coil-building, and glaze experimentation — preserving the warmth of handcraft and the traces of time.
+    Creative inspiration often comes from memories of growing up in the countryside — fields, plants, seasons, and the breath of the earth — reinterpreted through vessels and small-scale sculptures. Tranquil Island hopes that through ceramics, everyday objects can be more than functional — they can carry emotion and story.
+    Every piece is entirely handmade, from shaping to glazing, ensuring each work retains its uniqueness and natural detail.
 experience:
-  title: 市集資訊
+  title: Market Information
   description: |
-    市集資訊
+    Market schedule
   items:
-    - position: "台北"
+    - position: "Taipei"
       date: "²⁰²⁵  𝐍𝐨𝐯. 𝟎𝟕～𝟎𝟗 "
       company:
-        name: 好好微笑手感市集
+        name: Haohao Smile Handmade Market
         logo: "i-simple-icons-nuxtdotjs"
         url: "https://nuxt.com"
         color: "grey"
-    - position: "苗栗"
+    - position: "Miaoli"
       date: "²⁰²⁵  𝐍𝐨𝐯. 𝟎𝟕～𝟎𝟗 "
       company:
-        name: 灰熊市集
+        name: Grey Bear Market
         logo: "i-simple-icons-nuxtdotjs"
         url: "https://nuxt.com"
         color: "grey"
 
-    - position: "桃園"
+    - position: "Taoyuan"
       date: "²⁰²⁵  𝐍𝐨𝐯. 𝟎𝟕～𝟎𝟗 "
       company:
-        name: 大溪工藝週
+        name: Daxi Craft Week
         logo: "i-simple-icons-nuxtdotjs"
         url: "https://nuxt.com"
         color: "grey"
-    # - position: "Assets Designer at"
-    #   date: "2022 - 2023"
-    #   company:
-    #     name: Raycast
-    #     logo: "i-simple-icons-raycast"
-    #     url: "https://raycast.com"
-    #     color: "#FF6363"
-    # - position: "Senior UX/UI Designer at"
-    #   date: "2020 - 2021"
-    #   company:
-    #     name: Linear
-    #     logo: "i-simple-icons-linear"
-    #     url: "https://linear.app"
-    #     color: "#5E6AD2"
 testimonials:
   - quote: "Emma's approach to UX design completely transformed our product. She has a rare ability to balance beautiful aesthetics with functional simplicity. The redesign not only looked better, but it reduced our customer support tickets by 40% and increased conversion rates across all key metrics."
     author:
@@ -110,11 +98,11 @@ testimonials:
         srcset: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=80&h=80&q=80 2x'
 instagram:
   title: "Instagram"
-  description: "追蹤清嶼 Tranquil Island 的最新作品與市集日常。"
+  description: "Follow Tranquil Island for the latest works and market stories."
   url: "https://www.instagram.com/tranquil._.island/"
 blog:
   title: "Latest Articles"
-  description: "Some of my recent thoughts"
+  description: "Some of our recent thoughts"
 faq:
   title: Frequently Asked Questions
   description: Answers to common questions about my process and services.

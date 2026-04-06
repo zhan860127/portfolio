@@ -3,6 +3,7 @@ import { useProductStore } from '~/stores/product'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
 
+const { t } = useI18n()
 const route = useRoute()
 const cartStore = useCartStore()
 const productStore = useProductStore()
@@ -20,9 +21,9 @@ const product = computed(() => {
 })
 
 useHead({
-  title: product.value?.title || 'Product Not Found',
+  title: product.value?.title || t('products.notFound'),
   meta: [
-    { name: 'description', content: product.value?.description || 'Product details' }
+    { name: 'description', content: product.value?.description || t('products.description') }
   ]
 })
 const { loggedIn } = useUserSession()
@@ -35,8 +36,8 @@ function addToCart() {
   if (product.value) {
     cartStore.addToCart(product.value)
     toast.add({
-      title: 'Added to cart',
-      description: `${product.value.title} has been added to your cart.`,
+      title: t('products.addedToCart'),
+      description: t('products.addedToCartDesc', { title: product.value.title }),
       icon: 'i-heroicons-check-circle',
       color: 'success'
     })
@@ -79,7 +80,7 @@ function addToCart() {
 
           <div class="mt-3">
             <h2 class="sr-only">
-              Product information
+              {{ $t('products.productInfo') }}
             </h2>
             <p class="text-3xl text-gray-900 dark:text-white">
               ${{ product.price }}
@@ -88,7 +89,7 @@ function addToCart() {
 
           <div class="mt-6">
             <h3 class="sr-only">
-              Description
+              {{ $t('products.description') }}
             </h3>
             <div class="text-base text-gray-700 dark:text-gray-300 space-y-6">
               <p>{{ product.description }}</p>
@@ -100,7 +101,7 @@ function addToCart() {
               size="xl"
               @click="addToCart()"
             >
-              Add to cart
+              {{ $t('products.addToCart') }}
             </UButton>
           </div>
         </div>
@@ -108,11 +109,11 @@ function addToCart() {
 
       <div v-else class="text-center py-12">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Product not found
+          {{ $t('products.notFound') }}
         </h2>
         <div class="mt-6">
           <UButton to="/products">
-            Back to Products
+            {{ $t('products.backToProducts') }}
           </UButton>
         </div>
       </div>

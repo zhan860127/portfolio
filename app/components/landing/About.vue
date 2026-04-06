@@ -19,7 +19,7 @@ defineProps<{
 </template>
 
 <style scoped>
-.text-spacing {
-  letter-spacing: 2px;
+:deep(.text-spacing) {
+  letter-spacing: 1.5px;
 }
 </style>

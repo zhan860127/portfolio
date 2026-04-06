@@ -89,11 +89,30 @@ watch(() => route.fullPath, () => {
 
 onUnmounted(() => { widthSpring.cleanup(); offsetSpring.cleanup() })
 
-const navItems = [
-  { label: 'Home', to: '/' },
-  { label: 'Products', to: '/products' },
-  { label: 'Orders', to: '/orders' }
-]
+const { t, locale, locales, setLocale } = useI18n()
+
+const availableLocales = computed(() =>
+  (locales.value as Array<{ code: string; name: string }>).filter(l => l.code !== locale.value)
+)
+
+async function switchLocale() {
+  const next = availableLocales.value[0]
+  if (next) {
+    await setLocale(next.code as 'zh-TW' | 'en')
+    await nextTick()
+    requestAnimationFrame(() => {
+      if (isExpanded.value) apply(true)
+    })
+  }
+}
+
+const localeName = computed(() => locale.value === 'zh-TW' ? '中' : 'EN')
+
+const navItems = computed(() => [
+  { label: t('nav.home'), to: '/' },
+  { label: t('nav.products'), to: '/products' },
+  { label: t('nav.orders'), to: '/orders' }
+])
 </script>
 
 <template>
@@ -148,6 +167,13 @@ const navItems = [
             </span>
           </NuxtLink>
 
+          <button
+            class="flex-shrink-0 inline-flex items-center justify-center size-8 rounded-full text-xs font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            @click="switchLocale"
+          >
+            {{ localeName }}
+          </button>
+
           <div v-if="loggedIn" class="flex items-center gap-2 flex-shrink-0 ml-1">
             <UAvatar :src="user?.avatar" :alt="user?.name" size="xs" />
             <UButton
@@ -168,7 +194,7 @@ const navItems = [
             size="xs"
             class="ml-1 flex-shrink-0"
           >
-            Login
+            {{ $t('nav.login') }}
           </UButton>
         </div>
       </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useOrderStore } from '~/stores/order'
 
+const { t } = useI18n()
 const orderStore = useOrderStore()
 const { loggedIn } = useUserSession()
 
@@ -10,9 +11,9 @@ const paymentErrors = ref<Record<number, string | null>>({})
 const showBankModal = ref(false)
 
 useHead({
-  title: 'My Orders',
+  title: () => t('orders.title'),
   meta: [
-    { name: 'description', content: 'View your past orders.' }
+    { name: 'description', content: () => t('orders.metaDesc') }
   ]
 })
 
@@ -50,16 +51,16 @@ const submitPayment = async (index: number) => {
   <div class="py-12">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        My Orders
+        {{ $t('orders.title') }}
       </h1>
 
       <div v-if="!loggedIn" class="text-center py-12">
         <p class="text-sm text-gray-500 dark:text-gray-400">
-          Please log in to view your orders.
+          {{ $t('orders.loginRequired') }}
         </p>
         <div class="mt-6">
           <UButton to="/auth/google" external>
-            Login with Google
+            {{ $t('orders.loginWithGoogle') }}
           </UButton>
         </div>
       </div>
@@ -67,17 +68,17 @@ const submitPayment = async (index: number) => {
       <div v-else>
         <div v-if="orderStore.loading" class="text-center py-12">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Loading your orders...
+            {{ $t('orders.loading') }}
           </p>
         </div>
 
         <div v-else-if="orderStore.orders.length === 0" class="text-center py-12">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            You don't have any orders yet.
+            {{ $t('orders.noOrders') }}
           </p>
           <div class="mt-6">
             <UButton to="/products">
-              Start Shopping
+              {{ $t('orders.startShopping') }}
             </UButton>
           </div>
         </div>
@@ -91,7 +92,7 @@ const submitPayment = async (index: number) => {
             <div class="flex items-center justify-between mb-2">
               <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Order time
+                  {{ $t('orders.orderTime') }}
                 </p>
                 <p class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ order.time || 'N/A' }}
@@ -100,7 +101,7 @@ const submitPayment = async (index: number) => {
               <div class="text-right space-y-2 w-full sm:w-auto">
                 <div>
                   <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Total amount
+                    {{ $t('orders.totalAmount') }}
                   </p>
                   <p class="text-lg font-semibold text-gray-900 dark:text-white">
                     ${{ order.amount }}
@@ -158,7 +159,7 @@ const submitPayment = async (index: number) => {
 
             <div class="mt-3">
               <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Items
+                {{ $t('orders.items') }}
               </p>
               <p class="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-line">
                 {{ order.items }}

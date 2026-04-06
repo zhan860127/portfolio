@@ -38,7 +38,10 @@ export default defineContentConfig({
   collections: {
     index: defineCollection({
       type: 'page',
-      source: 'index.yml',
+      source: [
+        { include: 'index.yml' },
+        { include: 'index.en.yml' }
+      ],
       schema: z.object({
         seo: z.object({
           title: z.string(),

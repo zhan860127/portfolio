@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useProductStore } from '~/stores/product'
 
+const { t } = useI18n()
 const productStore = useProductStore()
 
 await productStore.fetchProducts('product')
 
 useHead({
-  title: 'Products',
+  title: () => t('products.title'),
   meta: [
-    { name: 'description', content: 'Browse our collection of premium products.' }
+    { name: 'description', content: () => t('products.metaDesc') }
   ]
 })
 </script>
@@ -18,10 +19,10 @@ useHead({
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
-          Our Products
+          {{ $t('products.title') }}
         </h1>
         <p class="mt-4 text-lg text-gray-500 dark:text-gray-400">
-          Carefully curated items for your lifestyle.
+          {{ $t('products.subtitle') }}
         </p>
       </div>
 
@@ -43,7 +44,7 @@ useHead({
               v-else
               class="h-full w-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm"
             >
-              目前沒有商品照片
+              {{ $t('products.noImage') }}
             </div>
           </div>
           <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">

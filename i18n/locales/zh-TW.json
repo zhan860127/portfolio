@@ -52,10 +52,20 @@
     "metaDesc": "查看您的歷史訂單。"
   },
   "blog": {
+    "blog": "文章",
     "back": "文章",
     "minRead": "分鐘閱讀",
     "copyLink": "複製連結",
     "linkCopied": "文章連結已複製到剪貼簿"
+  },
+  "landing": {
+    "defaultQuote": "每一件器物\n都是一次\n與土的對話。",
+    "materials": "Materials",
+    "clay": "陶土",
+    "handPinch": "手捏",
+    "goToInstagram": "前往 Instagram",
+    "loadingInstagram": "載入 Instagram 貼文中⋯",
+    "readArticle": "閱讀文章"
   },
   "bank": {
     "title": "匯款資訊",

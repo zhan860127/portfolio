@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useCartStore } from '~/stores/cart'
 
+const { t } = useI18n()
 const cartStore = useCartStore()
 const toast = useToast()
 const showBankModal = ref(false)
 
 useHead({
-  title: 'Shopping Cart',
+  title: () => t('cart.title'),
   meta: [
-    { name: 'description', content: 'Review your shopping cart.' }
+    { name: 'description', content: () => t('cart.metaDesc') }
   ]
 })
 
@@ -29,8 +30,8 @@ async function handleCheckout() {
     await cartStore.checkout()
     showBankModal.value = true
   } catch (error: any) {
-    const msg = error?.data?.message || 'Checkout failed. Please try again.'
-    toast.add({ title: 'Checkout failed', description: msg, color: 'error', icon: 'i-heroicons-x-circle' })
+    const msg = error?.data?.message || t('cart.checkoutFailedDesc')
+    toast.add({ title: t('cart.checkoutFailed'), description: msg, color: 'error', icon: 'i-heroicons-x-circle' })
   }
 }
 </script>
@@ -39,13 +40,13 @@ async function handleCheckout() {
   <div class="py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-12">
-        Shopping Cart
+        {{ $t('cart.title') }}
       </h1>
 
       <div v-if="cartStore.items.length > 0" class="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start xl:gap-x-16">
         <section aria-labelledby="cart-heading" class="lg:col-span-7">
           <h2 id="cart-heading" class="sr-only">
-            Items in your shopping cart
+            {{ $t('cart.itemsInCart') }}
           </h2>
 
           <ul role="list" class="border-t border-b border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
@@ -100,7 +101,7 @@ async function handleCheckout() {
                         variant="ghost"
                         @click="remove(item.id)"
                       >
-                        <span class="sr-only">Remove</span>
+                        <span class="sr-only">{{ $t('cart.remove') }}</span>
                       </UButton>
                     </div>
                   </div>
@@ -116,13 +117,13 @@ async function handleCheckout() {
           class="mt-16 bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-6 sm:p-6 lg:p-8 lg:mt-0 lg:col-span-5"
         >
           <h2 id="summary-heading" class="text-lg font-medium text-gray-900 dark:text-white">
-            Order summary
+            {{ $t('cart.orderSummary') }}
           </h2>
 
           <dl class="mt-6 space-y-4">
             <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
               <dt class="text-base font-medium text-gray-900 dark:text-white">
-                Order total
+                {{ $t('cart.orderTotal') }}
               </dt>
               <dd class="text-base font-medium text-gray-900 dark:text-white">
                 ${{ cartStore.cartTotal }}
@@ -132,7 +133,7 @@ async function handleCheckout() {
 
           <div class="mt-6">
             <UButton block size="lg" @click="handleCheckout">
-              Checkout
+              {{ $t('cart.checkout') }}
             </UButton>
           </div>
         </section>
@@ -142,14 +143,14 @@ async function handleCheckout() {
         <div class="text-center">
           <UIcon name="i-heroicons-shopping-cart" class="mx-auto h-12 w-12 text-gray-400" />
           <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-            Cart is empty
+            {{ $t('cart.empty') }}
           </h3>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Start shopping to add items to your cart.
+            {{ $t('cart.emptyDesc') }}
           </p>
           <div class="mt-6">
             <UButton to="/products">
-              Continue Shopping
+              {{ $t('cart.continueShopping') }}
             </UButton>
           </div>
         </div>

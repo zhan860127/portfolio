@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import type { IndexCollectionItem } from '@nuxt/content'
 
+const { t } = useI18n()
+
 const props = defineProps<{
   page: IndexCollectionItem
 }>()
 
-const quote = computed(() => props.page.about?.quote ?? `每一件器物\n都是一次\n與土的對話。`)
+const quote = computed(() => props.page.about?.quote ?? t('landing.defaultQuote'))
 
 const materials = computed(() => ({
-  title: props.page.about?.materials?.title ?? 'Materials',
-  tags: props.page.about?.materials?.tags ?? ['陶土', '手捏',]
+  title: props.page.about?.materials?.title ?? t('landing.materials'),
+  tags: props.page.about?.materials?.tags ?? [t('landing.clay'), t('landing.handPinch')]
 }))
 </script>
 
