@@ -81,6 +81,13 @@ async function deductStock(
   })
 }
 
+function generateOrderId(): string {
+  const now = new Date()
+  const date = now.toISOString().slice(0, 10).replace(/-/g, '')
+  const rand = Math.random().toString(36).slice(2, 7).toUpperCase()
+  return `ORD-${date}-${rand}`
+}
+
 async function createOrder(
   sheets: sheets_v4.Sheets,
   spreadsheetId: string,
@@ -88,10 +95,11 @@ async function createOrder(
   amount: number,
   items: CartItem[]
 ) {
+  const orderId = generateOrderId()
   const itemsSummary = items.map((i) => `${i.title} *${i.quantity}`).join('\n')
-  const orderTime = new Date().toLocaleString('sv-SE', { 
-    timeZone: 'Asia/Taipei' 
-  }).replace('T', ' ');
+  const orderTime = new Date().toLocaleString('sv-SE', {
+    timeZone: 'Asia/Taipei'
+  }).replace('T', ' ')
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
@@ -99,6 +107,7 @@ async function createOrder(
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [[
+        orderId,
         user?.email ?? 'unknown',
         user?.name ?? 'unknown',
         amount,
@@ -114,23 +123,29 @@ export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event) as any
   const { amount, items } = await readBody<{ amount: number; items: CartItem[] }>(event)
 
-  const { sheets, spreadsheetId } = useGoogleSheets()
-
-  const { stockMap, quantityColIndex } = await validateStock(sheets, spreadsheetId, items)
-
-  try {
-    await deductStock(sheets, spreadsheetId, items, stockMap, quantityColIndex)
-  } catch (error) {
-    console.error('Error updating product stock:', error)
-    throw createError({ statusCode: 500, message: 'Failed to update stock' })
-  }
+  const productIds = items.map(item => String(item.id))
+  const lock = await acquireProductLocks(productIds)
 
   try {
-    await createOrder(sheets, spreadsheetId, user, amount, items)
-  } catch (error) {
-    console.error('Error recording order:', error)
-    throw createError({ statusCode: 500, message: 'Failed to record order' })
-  }
+    const { sheets, spreadsheetId } = useGoogleSheets()
+    const { stockMap, quantityColIndex } = await validateStock(sheets, spreadsheetId, items)
 
-  return { success: true }
+    try {
+      await deductStock(sheets, spreadsheetId, items, stockMap, quantityColIndex)
+    } catch (error) {
+      console.error('Error updating product stock:', error)
+      throw createError({ statusCode: 500, message: 'Failed to update stock' })
+    }
+
+    try {
+      await createOrder(sheets, spreadsheetId, user, amount, items)
+    } catch (error) {
+      console.error('Error recording order:', error)
+      throw createError({ statusCode: 500, message: 'Failed to record order' })
+    }
+
+    return { success: true }
+  } finally {
+    await releaseProductLocks(lock)
+  }
 })

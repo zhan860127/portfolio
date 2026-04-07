@@ -52,10 +52,20 @@
     "metaDesc": "View your past orders."
   },
   "blog": {
+    "blog": "Blog",
     "back": "Blog",
     "minRead": "MIN READ",
     "copyLink": "Copy link",
     "linkCopied": "Article link copied to clipboard"
+  },
+  "landing": {
+    "defaultQuote": "Every piece\nis a conversation\nwith the clay.",
+    "materials": "Materials",
+    "clay": "Clay",
+    "handPinch": "Hand-pinched",
+    "goToInstagram": "Go to Instagram",
+    "loadingInstagram": "Loading Instagram posts...",
+    "readArticle": "Read Article"
   },
   "bank": {
     "title": "Bank Transfer Info",

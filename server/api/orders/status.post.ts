@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   try {
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `order!F${rowNumber}:G${rowNumber}`,
+      range: `order!G${rowNumber}:H${rowNumber}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [[status, lastFiveDigits ?? '']]

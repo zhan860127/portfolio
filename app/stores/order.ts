@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 export interface Order {
   rowNumber: number
+  orderId: string
   email: string
   name: string
   amount: number

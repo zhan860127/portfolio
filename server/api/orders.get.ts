@@ -9,17 +9,18 @@ export default defineEventHandler(async (event) => {
 
     return values
       .map((row: string[], index: number) => ({ row, index }))
-      .filter(({ row }: { row: string[] }) => row && row.length >= 4)
-      .filter(({ row }: { row: string[] }) => row[0] === userEmail)
+      .filter(({ row }: { row: string[] }) => row && row.length >= 5)
+      .filter(({ row }: { row: string[] }) => row[1] === userEmail)
       .map(({ row, index }: { row: string[]; index: number }) => ({
         rowNumber: index + 1,
-        email: row[0] ?? '',
-        name: row[1] ?? '',
-        amount: Number(row[2] ?? 0) || 0,
-        items: row[3] ?? '',
-        time: row[4] ?? '',
-        status: row[5] ?? '',
-        lastFiveDigits: row[6] ?? ''
+        orderId: row[0] ?? '',
+        email: row[1] ?? '',
+        name: row[2] ?? '',
+        amount: Number(row[3] ?? 0) || 0,
+        items: row[4] ?? '',
+        time: row[5] ?? '',
+        status: row[6] ?? '',
+        lastFiveDigits: row[7] ?? ''
       }))
   } catch (error) {
     console.error('Error fetching orders:', error)
