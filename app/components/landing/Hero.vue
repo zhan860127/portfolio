@@ -56,10 +56,11 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
         }"
       >
         <NuxtImg
-            fit="cover"
-          width="200"
-          height="200"
-          sizes="sm:80vw md:300px"
+          fit="cover"
+          width="152"
+          height="152"
+          sizes="(max-width: 640px) 128px, (max-width: 1024px) 144px, 152px"
+          class="mx-auto w-32 sm:w-36 md:w-38"
           :src="global.picture?.light!"
           :alt="global.picture?.alt!"
           placeholder

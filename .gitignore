@@ -29,3 +29,5 @@ logs
 credentials.json
 .vercel
 .env*.local
+
+.cursor/*

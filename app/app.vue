@@ -1,6 +1,14 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
 colorMode.preference = 'light'
+colorMode.value = 'light'
+
+if (import.meta.client) {
+  onMounted(() => {
+    document.documentElement.classList.remove('dark')
+    document.documentElement.classList.add('light')
+  })
+}
 
 const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
 
