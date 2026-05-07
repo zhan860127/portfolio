@@ -57,8 +57,6 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
       >
         <NuxtImg
           fit="cover"
-          width="152"
-          height="152"
           sizes="(max-width: 640px) 128px, (max-width: 1024px) 144px, 152px"
           class="mx-auto w-32 sm:w-36 md:w-38"
           :src="global.picture?.light!"
@@ -183,7 +181,7 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
 
     <UMarquee
       pause-on-hover
-      class="py-2 -mx-8 sm:-mx-12 lg:-mx-16 [--duration:40s]"
+      class="py-2 -mx-8 sm:-mx-12 lg:-mx-16 [--duration:40s] [--gap:0.5rem]"
     >
       <!-- Cloudinary 成功回傳後才顯示圖片 -->
       <Motion
@@ -208,8 +206,7 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
         <NuxtImg
           width="234"
           height="234"
-          class="rounded-lg aspect-square object-cover"
-          :class="index % 2 === 0 ? '-rotate-2' : 'rotate-2'"
+          class=" aspect-square object-cover"
           v-bind="img"
           placeholder
           preload

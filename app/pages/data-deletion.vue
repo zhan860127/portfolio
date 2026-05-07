@@ -12,6 +12,12 @@ useHead({
 <template>
   <div class="py-12">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <NuxtLink
+        to="/privacy"
+        class="inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:underline mb-6"
+      >
+        ← 返回隱私政策
+      </NuxtLink>
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
         用戶資料刪除
       </h1>

@@ -252,13 +252,7 @@ if (error.value) {
               </span>
             </span>
 
-            <span class="instagram-collage-overlay">
-              <UIcon
-                name="i-simple-icons-instagram"
-                class="instagram-collage-overlay-icon"
-              />
-              <span>Open diary</span>
-            </span>
+            <span class="instagram-collage-overlay" />
           </button>
 
           <ULink
@@ -519,6 +513,10 @@ if (error.value) {
   transform: scale(1.035);
 }
 
+.instagram-collage-button:active .instagram-collage-image {
+  transform: scale(0.985);
+}
+
 .instagram-collage-button:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--ui-primary) 78%, white);
   outline-offset: -4px;
@@ -527,27 +525,15 @@ if (error.value) {
 .instagram-collage-overlay {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  background:
-    linear-gradient(180deg, rgb(44 36 28 / 10%), rgb(44 36 28 / 44%));
-  color: #fffaf0;
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
-  opacity: 0;
-  transition: opacity 180ms ease;
+  background: linear-gradient(180deg, rgb(44 36 28 / 0%), rgb(44 36 28 / 18%));
+  opacity: 0.55;
+  transition: opacity 180ms ease, background 180ms ease;
 }
 
 .instagram-collage-button:hover .instagram-collage-overlay,
 .instagram-collage-button:focus-visible .instagram-collage-overlay {
-  opacity: 1;
-}
-
-.instagram-collage-overlay-icon {
-  width: 1.05rem;
-  height: 1.05rem;
+  opacity: 0.92;
+  background: linear-gradient(180deg, rgb(44 36 28 / 0%), rgb(44 36 28 / 24%));
 }
 
 .instagram-collage-link {
