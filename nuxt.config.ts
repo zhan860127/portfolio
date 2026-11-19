@@ -51,12 +51,8 @@ export default defineNuxtConfig({
       external: ['better-sqlite3']
     },
     
-    publicAssets: [
-    {
-      dir: 'secrets',
-      maxAge: 60 * 60 * 24 * 365
-    }
-  ],serverAssets: [{
+    // secrets/ 僅供 server 端讀取，不可放進 publicAssets（會被掛在站台根路徑對外提供）
+    serverAssets: [{
     baseName: 'secrets',
     dir: './secrets'
   }],
@@ -65,8 +61,19 @@ export default defineNuxtConfig({
     prerender: {
       // 避免 build 時爬蟲去抓虛擬路徑導致失敗
       ignore: ['/_vercel', '/_ipx']
+    },
+    vercel: {
+      config: {
+        version: 3,
+        // Instagram 長效 token 每 60 天到期，必須在到期前換發；
+        // 端點本身會判斷是否真的到了該換的時候，每天空跑成本極低
+        crons: [{
+          path: '/api/cron/instagram-token-refresh',
+          schedule: '0 4 * * *'
+        }]
+      }
     }
-  
+
   },
 
   eslint: {
@@ -85,7 +92,13 @@ export default defineNuxtConfig({
     },
     googleCredentialsPath: process.env.NUXT_GOOGLE_APPLICATION_CREDENTIALS_JSON || `./secrets/credentials.json`,
     googleSpreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
-    instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN
+    // 首次授權取得的 token；換發後以 KV 的版本為準
+    instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
+    // Vercel KV（Upstash）整合注入，用來存放換發後的 token
+    kvRestApiUrl: process.env.KV_REST_API_URL,
+    kvRestApiToken: process.env.KV_REST_API_TOKEN,
+    // Vercel Cron 觸發時帶的 Bearer token
+    cronSecret: process.env.CRON_SECRET
   }
 
 })

@@ -1,5 +1,7 @@
 const INSTAGRAM_GRAPH_BASE = 'https://graph.instagram.com/v25.0'
 const DEFAULT_POST_LIMIT = 6
+// Instagram CDN 的 media_url 是短效簽章連結，快取時間不可拉長，否則圖片會 403
+const CACHE_TTL_SECONDS = 600
 
 type GraphError = {
   error?: {
@@ -86,9 +88,42 @@ function toTimestampValue(value?: string): number {
   return Number.isNaN(ts) ? 0 : ts
 }
 
+const fetchHomePosts = defineCachedFunction(async (token: string): Promise<InstagramHomePost[]> => {
+  const [profile, media] = await Promise.all([
+    $fetch<InstagramMeResponse>(`${INSTAGRAM_GRAPH_BASE}/me`, {
+      params: {
+        fields: 'id,username',
+        access_token: token
+      },
+      timeout: 8000
+    }),
+    $fetch<InstagramMediaResponse>(`${INSTAGRAM_GRAPH_BASE}/me/media`, {
+      params: {
+        fields: 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp',
+        limit: DEFAULT_POST_LIMIT,
+        access_token: token
+      },
+      timeout: 8000
+    })
+  ])
+
+  const author = profile.username || 'tranquil._.island'
+
+  return (media.data || [])
+    .map(post => toHomePost(post, author))
+    .filter((post): post is InstagramHomePost => Boolean(post))
+    .sort((a, b) => toTimestampValue(b.timestamp) - toTimestampValue(a.timestamp))
+    .slice(0, DEFAULT_POST_LIMIT)
+}, {
+  name: 'instagram',
+  // token 不放進 cache key；所有訪客共用同一份結果
+  getKey: () => 'home-posts',
+  maxAge: CACHE_TTL_SECONDS
+})
+
 export default defineEventHandler(async () => {
-  const config = useRuntimeConfig()
-  const token = typeof config.instagramAccessToken === 'string' ? config.instagramAccessToken.trim() : ''
+  // KV 內換發過的 token 優先，環境變數為保底；見 server/utils/instagramToken.ts
+  const token = await getInstagramToken()
 
   if (!token) {
     return {
@@ -100,29 +135,7 @@ export default defineEventHandler(async () => {
   }
 
   try {
-    const profile = await $fetch<InstagramMeResponse>(`${INSTAGRAM_GRAPH_BASE}/me`, {
-      params: {
-        fields: 'id,username',
-        access_token: token
-      },
-      timeout: 8000
-    })
-
-    const media = await $fetch<InstagramMediaResponse>(`${INSTAGRAM_GRAPH_BASE}/me/media`, {
-      params: {
-        fields: 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp',
-        limit: DEFAULT_POST_LIMIT,
-        access_token: token
-      },
-      timeout: 8000
-    })
-
-    const author = profile.username || config.instagramOwnerUsername || 'tranquil._.island'
-    const posts = (media.data || [])
-      .map(post => toHomePost(post, author))
-      .filter((post): post is InstagramHomePost => Boolean(post))
-      .sort((a, b) => toTimestampValue(b.timestamp) - toTimestampValue(a.timestamp))
-      .slice(0, DEFAULT_POST_LIMIT)
+    const posts = await fetchHomePosts(token)
 
     return {
       posts,
@@ -136,7 +149,8 @@ export default defineEventHandler(async () => {
     return {
       posts: [],
       configured: true as const,
-      error: message,
+      // 只回傳穩定的機器可讀代碼，Graph API 的原始訊息僅保留在伺服器紀錄
+      error: 'fetch_failed' as const,
       code,
       source: 'instagram_graph_media' as const
     }
