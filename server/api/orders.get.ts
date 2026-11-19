@@ -1,64 +1,35 @@
-import { google } from "googleapis";
-import { readFileSync } from "node:fs";
+import { desc, eq, inArray } from 'drizzle-orm'
+import { orderItems, orders } from '../database/schema'
+
+const MAX_ORDERS = 100
 
 export default defineEventHandler(async (event) => {
-  const { user } = (await requireUserSession(event)) as any;
-  const config = useRuntimeConfig();
+  const user = await requireDbUser(event)
+  const db = useDb()
 
-  const credentialsPath = config.googleCredentialsPath;
+  // 只取自己的訂單；不再把整份試算表載進記憶體後才過濾
+  const rows = await db
+    .select()
+    .from(orders)
+    .where(eq(orders.userId, user.id))
+    .orderBy(desc(orders.createdAt))
+    .limit(MAX_ORDERS)
 
-  if (!credentialsPath) {
-    throw new Error("Missing Google credentials path");
+  if (rows.length === 0) {
+    return []
   }
 
-  const credentials = JSON.parse(credentialsPath);
+  const items = await db
+    .select()
+    .from(orderItems)
+    .where(inArray(orderItems.orderId, rows.map(order => order.id)))
 
-  if (!config.googleSpreadsheetId) {
-    throw createError({
-      statusCode: 500,
-      message: "Google Spreadsheet ID is not configured",
-    });
+  const itemsByOrder = new Map<string, typeof items>()
+  for (const item of items) {
+    const bucket = itemsByOrder.get(item.orderId) ?? []
+    bucket.push(item)
+    itemsByOrder.set(item.orderId, bucket)
   }
 
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-  });
-
-  const sheets = google.sheets({ version: "v4", auth });
-
-  try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: config.googleSpreadsheetId,
-      range: "order",
-    });
-
-    const values = response.data.values ?? [];
-
-    const userEmail = user?.email ?? "unknown";
-
-    const orders = values
-      .map((row, index) => ({ row, index }))
-      .filter(({ row }) => row && row.length >= 4)
-      .filter(({ row }) => row[0] === userEmail)
-      .map(({ row, index }) => ({
-        rowNumber: index + 1,
-        email: row[0] ?? "",
-        name: row[1] ?? "",
-        amount: Number(row[2] ?? 0) || 0,
-        items: row[3] ?? "",
-        time: row[4] ?? "",
-        status: row[5] ?? "",
-        lastFiveDigits: row[6] ?? "",
-      }));
-
-    return orders;
-  } catch (error) {
-    console.error("Error fetching orders from Google Sheet:", error);
-    throw createError({
-      statusCode: 500,
-      message: "Failed to fetch orders",
-    });
-  }
-}
-)
+  return rows.map(order => toApiOrder(order, itemsByOrder.get(order.id) ?? [], user.name, user.email))
+})

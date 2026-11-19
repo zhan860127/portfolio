@@ -3,6 +3,7 @@ import { useOrderStore } from '~/stores/order'
 
 const orderStore = useOrderStore()
 const { loggedIn } = useUserSession()
+const loginLink = useLoginLink()
 
 const paymentInputs = ref<Record<number, string>>({})
 const paymentLoading = ref<Record<number, boolean>>({})
@@ -52,7 +53,7 @@ const submitPayment = async (index: number) => {
           Please log in to view your orders.
         </p>
         <div class="mt-6">
-          <UButton to="/auth/google" external>
+          <UButton :to="loginLink" external>
             Login with Google
           </UButton>
         </div>

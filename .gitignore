@@ -31,3 +31,4 @@ credentials.json
 .env*.local
 
 .cursor/*
+.agents

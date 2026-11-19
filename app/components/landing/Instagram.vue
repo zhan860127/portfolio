@@ -29,13 +29,9 @@ interface InstagramResponse {
   code?: number
 }
 
-const props = defineProps<{
+defineProps<{
   page: IndexCollectionItem & InstagramSection
 }>()
-
-const instagramUrl = computed(
-  () => props.page.instagram?.url ?? 'https://www.instagram.com/tranquil._.island/'
-)
 
 const { data, pending, error } = await useAsyncData<InstagramResponse>(
   'instagram-home-posts',
@@ -66,7 +62,8 @@ const selectedPost = computed(() => {
 
 const hasPosts = computed(() => posts.value.length > 0)
 const isModalOpen = computed(() => selectedPost.value !== null)
-const apiErrorMessage = computed(() => data.value?.error?.trim() || '')
+// API 只回傳機器可讀的錯誤代碼（missing_token / fetch_failed），不直接顯示給使用者
+const apiErrorCode = computed(() => data.value?.error?.trim() || '')
 
 const gridItemClasses = computed(() => {
   return posts.value.map((_, index) => ({
@@ -79,8 +76,8 @@ const gridItemClasses = computed(() => {
 })
 
 function getPostImage(post: InstagramPost, index: number): string | null {
-  const directMedia =
-    post.mediaType === 'VIDEO'
+  const directMedia
+    = post.mediaType === 'VIDEO'
       ? post.thumbnailUrl || post.mediaUrl
       : post.mediaUrl || post.thumbnailUrl
 
@@ -200,11 +197,11 @@ if (error.value) {
       </div>
 
       <UAlert
-        v-else-if="(error || apiErrorMessage) && !hasPosts"
+        v-else-if="(error || apiErrorCode) && !hasPosts"
         color="warning"
         variant="soft"
         title="Instagram 貼文暫時無法載入"
-        :description="apiErrorMessage || '可以稍後再試，或直接前往 Instagram 查看最新日記。'"
+        description="可以稍後再試，或直接前往 Instagram 查看最新日記。"
       />
 
       <UAlert
@@ -212,7 +209,7 @@ if (error.value) {
         color="neutral"
         variant="soft"
         title="尚未取得 Instagram 貼文"
-        description="請確認 INSTAGRAM_ACCESS_TOKEN 是否有效，或稍後重新整理。"
+        description="可以稍後再試，或直接前往 Instagram 查看最新日記。"
       />
 
       <div

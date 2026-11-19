@@ -5,6 +5,7 @@ import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
 const { loggedIn, user, clear } = useUserSession()
+const loginLink = useLoginLink()
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -12,13 +13,13 @@ const navItems = [
   // { label: 'Projects', to: '/projects' },
   // { label: 'Speaking', to: '/speaking' },
   // { label: 'Blog', to: '/blog' },
-  // { label: 'Products', to: '/products' },
-  // { label: 'My Orders', to: '/orders' }
+  { label: 'Products', to: '/products' },
+  { label: 'My Orders', to: '/orders' }
 ]
 </script>
 
 <template>
-  <div v-if="false" class="fixed top-2 sm:top-4 mx-auto left-1/2 transform -translate-x-1/2 z-10">
+  <div class="fixed top-2 sm:top-4 mx-auto left-1/2 transform -translate-x-1/2 z-10">
     <nav
       class="bg-muted/80 backdrop-blur-sm rounded-full px-2 sm:px-4 border border-muted/50 shadow-lg shadow-neutral-950/5"
     >
@@ -42,12 +43,15 @@ const navItems = [
           active-class="bg-gray-100 dark:bg-gray-800"
         >
           <UIcon name="i-heroicons-shopping-cart" class="w-5 h-5" />
-          <span
-            v-if="cartStore.itemCount > 0"
-            class="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
-          >
-            {{ cartStore.itemCount }}
-          </span>
+          <!-- 數量改由 localStorage 還原，SSR 階段取不到；不包 ClientOnly 會 hydration mismatch -->
+          <ClientOnly>
+            <span
+              v-if="cartStore.itemCount > 0"
+              class="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+            >
+              {{ cartStore.itemCount }}
+            </span>
+          </ClientOnly>
         </NuxtLink>
 
         <ColorModeButton />
@@ -64,7 +68,7 @@ const navItems = [
         </div>
         <UButton
           v-else
-          to="/auth/google"
+          :to="loginLink"
           external
           icon="i-simple-icons-google"
           color="gray"

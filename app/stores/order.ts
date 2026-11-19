@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 
 export interface Order {
-  rowNumber: number
+  /** 訂單的穩定識別碼（DB uuid）。取代先前以試算表列號當識別的做法。 */
+  id: string
   email: string
   name: string
   amount: number
@@ -52,7 +53,7 @@ export const useOrderStore = defineStore('order', () => {
       await $fetch('/api/orders/status', {
         method: 'POST',
         body: {
-          rowNumber: order.rowNumber,
+          orderId: order.id,
           status,
           lastFiveDigits
         }
@@ -78,4 +79,3 @@ export const useOrderStore = defineStore('order', () => {
     updateOrderStatus
   }
 })
-

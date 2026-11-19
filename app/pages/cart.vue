@@ -119,7 +119,13 @@ function remove(id: number) {
           </dl>
 
           <div class="mt-6">
-            <UButton block size="lg" @click="cartStore.checkout()">
+            <UButton
+              block
+              size="lg"
+              :loading="cartStore.submitting"
+              :disabled="cartStore.submitting"
+              @click="cartStore.checkout()"
+            >
               Checkout
             </UButton>
           </div>

@@ -9,7 +9,9 @@
     "postinstall": "nuxt prepare && npm rebuild better-sqlite3",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.70",
@@ -21,6 +23,7 @@
     "@vueuse/nuxt": "^13.9.0",
     "better-sqlite3": "^12.4.1",
     "cloudinary": "^2.8.0",
+    "drizzle-orm": "^0.45.2",
     "google-spreadsheet": "^5.0.2",
     "googleapis": "^166.0.0",
     "motion-v": "^1.7.3",
@@ -29,11 +32,13 @@
     "nuxt-og-image": "^5.1.12",
     "oxc-parser": "^0.95.0",
     "pinia": "^3.0.3",
+    "postgres": "^3.4.9",
     "vite-plugin-svg-icons": "^2.0.1"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
     "@oxc-parser/binding-linux-arm64-gnu": "^0.95.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9.38.0",
     "typescript": "^5.9.3",
     "vite-plugin-progress": "^0.0.7",
