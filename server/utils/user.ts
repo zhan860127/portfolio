@@ -10,19 +10,24 @@ export async function upsertUser(profile: { email: string, name?: string | null,
   const db = useDb()
   const email = profile.email.trim().toLowerCase()
 
+  // ADMIN_EMAILS 只會提權、不會降權：移除環境變數不該讓既有管理員無聲失去權限
+  const seedAdmin = isSeedAdminEmail(email)
+
   const [user] = await db
     .insert(users)
     .values({
       email,
       name: profile.name ?? null,
-      avatarUrl: profile.avatar ?? null
+      avatarUrl: profile.avatar ?? null,
+      role: seedAdmin ? 'admin' : 'user'
     })
     .onConflictDoUpdate({
       target: users.email,
       set: {
         name: profile.name ?? null,
         avatarUrl: profile.avatar ?? null,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        ...(seedAdmin ? { role: 'admin' as const } : {})
       }
     })
     .returning()

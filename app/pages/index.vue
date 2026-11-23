@@ -53,6 +53,10 @@ useHead({
 <template>
   <UPage v-if="page">
     <LandingHero :page />
+
+    <!-- 線上市集入口：放在 Hero 之後，手機版第一屏往下滑就看得到 -->
+    <MarketEntry :fallback-image="page.hero?.images?.[2]?.src" />
+
     <LandingMappage :page>
       <LandingWorkExperience :page />
     </LandingMappage>

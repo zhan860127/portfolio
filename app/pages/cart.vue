@@ -10,15 +10,15 @@ useHead({
   ]
 })
 
-function increment(id: number, currentQuantity: number) {
+function increment(id: string, currentQuantity: number) {
   cartStore.updateQuantity(id, currentQuantity + 1)
 }
 
-function decrement(id: number, currentQuantity: number) {
+function decrement(id: string, currentQuantity: number) {
   cartStore.updateQuantity(id, currentQuantity - 1)
 }
 
-function remove(id: number) {
+function remove(id: string) {
   cartStore.removeFromCart(id)
 }
 </script>
@@ -30,17 +30,33 @@ function remove(id: number) {
         Shopping Cart
       </h1>
 
-      <div v-if="cartStore.items.length > 0" class="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start xl:gap-x-16">
-        <section aria-labelledby="cart-heading" class="lg:col-span-7">
-          <h2 id="cart-heading" class="sr-only">
+      <div
+        v-if="cartStore.items.length > 0"
+        class="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start xl:gap-x-16"
+      >
+        <section
+          aria-labelledby="cart-heading"
+          class="lg:col-span-7"
+        >
+          <h2
+            id="cart-heading"
+            class="sr-only"
+          >
             Items in your shopping cart
           </h2>
 
-          <ul role="list" class="border-t border-b border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
-            <li v-for="item in cartStore.items" :key="item.id" class="flex py-6 sm:py-10">
+          <ul
+            role="list"
+            class="border-t border-b border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700"
+          >
+            <li
+              v-for="item in cartStore.items"
+              :key="item.id"
+              class="flex py-6 sm:py-10"
+            >
               <div class="flex-shrink-0">
                 <img
-                  :src="item.image"
+                  :src="item.image?.[0]?.src"
                   :alt="item.title"
                   class="w-24 h-24 rounded-md object-center object-cover sm:w-48 sm:h-48"
                 >
@@ -51,7 +67,10 @@ function remove(id: number) {
                   <div>
                     <div class="flex justify-between">
                       <h3 class="text-sm">
-                        <NuxtLink :to="`/products/${item.id}`" class="font-medium text-gray-700 dark:text-gray-200 hover:text-gray-800 dark:hover:text-white">
+                        <NuxtLink
+                          :to="`/products/${item.id}`"
+                          class="font-medium text-gray-700 dark:text-gray-200 hover:text-gray-800 dark:hover:text-white"
+                        >
                           {{ item.title }}
                         </NuxtLink>
                       </h3>
@@ -66,7 +85,7 @@ function remove(id: number) {
                       <UButton
                         icon="i-heroicons-minus"
                         size="xs"
-                        color="gray"
+                        color="neutral"
                         variant="ghost"
                         @click="decrement(item.id, item.quantity)"
                       />
@@ -74,7 +93,7 @@ function remove(id: number) {
                       <UButton
                         icon="i-heroicons-plus"
                         size="xs"
-                        color="gray"
+                        color="neutral"
                         variant="ghost"
                         @click="increment(item.id, item.quantity)"
                       />
@@ -84,7 +103,7 @@ function remove(id: number) {
                       <UButton
                         icon="i-heroicons-trash"
                         size="sm"
-                        color="red"
+                        color="error"
                         variant="ghost"
                         @click="remove(item.id)"
                       >
@@ -103,7 +122,10 @@ function remove(id: number) {
           aria-labelledby="summary-heading"
           class="mt-16 bg-gray-50 dark:bg-gray-800 rounded-lg px-4 py-6 sm:p-6 lg:p-8 lg:mt-0 lg:col-span-5"
         >
-          <h2 id="summary-heading" class="text-lg font-medium text-gray-900 dark:text-white">
+          <h2
+            id="summary-heading"
+            class="text-lg font-medium text-gray-900 dark:text-white"
+          >
             Order summary
           </h2>
 
@@ -132,9 +154,15 @@ function remove(id: number) {
         </section>
       </div>
 
-      <div v-else class="text-center py-12">
+      <div
+        v-else
+        class="text-center py-12"
+      >
         <div class="text-center">
-          <UIcon name="i-heroicons-shopping-cart" class="mx-auto h-12 w-12 text-gray-400" />
+          <UIcon
+            name="i-heroicons-shopping-cart"
+            class="mx-auto h-12 w-12 text-gray-400"
+          />
           <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
             Cart is empty
           </h3>

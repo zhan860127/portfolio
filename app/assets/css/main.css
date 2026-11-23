@@ -7,6 +7,49 @@
 @theme static {
   --font-sans: 'Noto Serif TC', Georgia, serif;
   --font-serif: 'Noto Serif TC', Georgia, serif;
+
+  /*
+   * 清嶼手記品牌色。500 刻意就是 #a7be8c 本身，
+   * 這樣 Nuxt UI 的 primary 元件預設取 500 時拿到的就是品牌色，不需要逐處覆寫。
+   */
+  --color-brand-50: #f6f9f3;
+  --color-brand-100: #e9f0e3;
+  --color-brand-200: #d7e3cb;
+  --color-brand-300: #c2d3b0;
+  --color-brand-400: #b5c99e;
+  --color-brand-500: #a7be8c;
+  --color-brand-600: #8da473;
+  --color-brand-700: #70845c;
+  --color-brand-800: #5a6a4c;
+  --color-brand-900: #4a5740;
+  --color-brand-950: #272f21;
+}
+
+/* 全螢幕市集瀏覽器用；iOS 需要 env() 才不會被瀏海與 home indicator 蓋住 */
+:root {
+  --market-safe-top: env(safe-area-inset-top, 0px);
+  --market-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/*
+ * 市集瀏覽器的手勢區塊自行處理所有觸控，交給瀏覽器就會變成捲頁或 Safari 的邊緣返回。
+ * touch-action: none 必須下在實際接收 pointer 事件的元素上才有效。
+ */
+.market-gesture-surface {
+  touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-animated,
+  .market-animated * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 :root {

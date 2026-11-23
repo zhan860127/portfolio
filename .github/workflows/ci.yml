@@ -32,3 +32,8 @@ jobs:
 
       - name: Typecheck
         run: pnpm run typecheck
+
+      # 需要真實 Postgres 的整合測試在沒有 DATABASE_URL_TEST 時會自動跳過，
+      # 詳見 tests/db/market-orders.spec.ts
+      - name: Test
+        run: pnpm run test

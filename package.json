@@ -10,6 +10,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "nuxt typecheck",
+    "test": "vitest run --project unit --project nuxt",
+    "test:unit": "vitest run --project unit",
+    "test:nuxt": "vitest run --project nuxt",
+    "test:db": "vitest run --project db",
+    "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
@@ -37,12 +42,16 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
+    "@nuxt/test-utils": "^4.4.0",
     "@oxc-parser/binding-linux-arm64-gnu": "^0.95.0",
+    "@vue/test-utils": "^2.6.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.38.0",
+    "happy-dom": "^21.0.4",
     "typescript": "^5.9.3",
     "vite-plugin-progress": "^0.0.7",
     "vite-svg-loader": "^5.1.0",
+    "vitest": "^5.1.1",
     "vue-tsc": "^3.1.1"
   },
   "resolutions": {

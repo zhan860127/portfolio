@@ -39,7 +39,9 @@ const oauthHandler = defineOAuthGoogleEventHandler({
         id: dbUser.id,
         email: dbUser.email,
         name: dbUser.name,
-        avatar: dbUser.avatarUrl
+        avatar: dbUser.avatarUrl,
+        // 僅供前端決定要不要顯示後台入口；真正的授權一律由 requireAdminUser 查 DB
+        role: dbUser.role
       }
     })
 

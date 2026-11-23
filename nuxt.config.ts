@@ -32,7 +32,7 @@ export default defineNuxtConfig({
         host: process.env.NGROK_HOST,
         port: 443
       },
-      
+
       allowedHosts: [
         ".*\.ngrok-free\.app$",
         ".*\.ngrok\.io$",
