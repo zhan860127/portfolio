@@ -23,7 +23,6 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
 
   // 取得圖片列表
   const fetchImages = async () => {
-
     if (images.value.length > 0) {
       return // 如果已經有圖片就不重複獲取
     }
@@ -35,9 +34,7 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
       const data = await $fetch<CloudinaryResponse>('/api/cloudinary')
 
       if (data.resources) {
-
         images.value = data.resources
-
       } else if (data.error) {
         error.value = data.error
       }
@@ -49,32 +46,32 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
     }
   }
 
-  // 取得前 N 張圖片
-  const getFolderImages = (folder: string = "") => {
-    
-    return computed(() => {
-      // 如果 folder 有指定，就只回傳那個資料夾的圖片
-      if (folder) {
-        return images.value.filter(img => img.asset_folder.includes(folder)).map((resource) => ({
-          src: resource.secure_url,
-          alt: resource.public_id,
-          // width: resource.width,
-          // height: resource.height
-        }))
-      }
-      return images.value
-    })
+  /**
+   * 取某個資料夾的圖片。
+   *
+   * 比對的是完整的路徑片段，不是子字串：資料夾叫 hero 時不該連 hero-old
+   * 或 market/hero-ish 都一起撈進來。巢狀資料夾（products/TQ001）仍然認得。
+   */
+  const matchesFolder = (assetFolder: string | undefined, folder: string) => {
+    const path = assetFolder ?? ''
+
+    return path === folder || path.split('/').includes(folder)
   }
 
-  // 轉換為 Hero 使用的格式
-  const getFormattedImages = (count: number = 9) => {
+  const getFolderImages = (folder: string = '') => {
     return computed(() => {
-      return images.value.slice(0, count).map((resource) => ({
-        src: resource.secure_url,
-        alt: resource.public_id,
-        // width: resource.width,
-        // height: resource.height
-      }))
+      // 沒指定資料夾就回空陣列。回「全部圖片」會讓呼叫端拿到另一種形狀的資料，
+      // 而且剛好就是這個 composable 要避免的「抓到最新的隨便幾張」。
+      if (!folder) {
+        return []
+      }
+
+      return images.value
+        .filter(image => matchesFolder(image.asset_folder, folder))
+        .map(resource => ({
+          src: resource.secure_url,
+          alt: resource.public_id
+        }))
     })
   }
 
@@ -83,7 +80,6 @@ export const useCloudinaryStore = defineStore('cloudinary', () => {
     loading,
     error,
     fetchImages,
-    getFolderImages,
-    getFormattedImages
+    getFolderImages
   }
 })

@@ -47,7 +47,8 @@ const failedImageUrls = shallowRef(new Set<string>())
 const selectedIndex = shallowRef<number | null>(null)
 const pageTurnDirection = shallowRef<'next' | 'previous'>('next')
 const cloudinaryStore = useCloudinaryStore()
-const cloudinaryImages = cloudinaryStore.getFormattedImages(6)
+// IG 圖掛掉時的墊檔圖，同樣固定資料夾，免得墊出一張市集作品照
+const cloudinaryImages = cloudinaryStore.getFolderImages(useAppConfig().hero.cloudinaryFolder)
 
 const posts = computed(() => {
   return (data.value?.posts ?? [])

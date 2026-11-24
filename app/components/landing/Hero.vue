@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IndexCollectionItem } from '@nuxt/content'
-import { useCloudinaryStore } from '~/stores/cloudinary';
+import { useCloudinaryStore } from '~/stores/cloudinary'
 
 const { hero, global } = useAppConfig()
 
@@ -15,19 +15,23 @@ onMounted(() => {
   cloudinaryStore.fetchImages()
 })
 
-// 取得格式化的圖片（前 9 張）
-const heroImages = cloudinaryStore.getFormattedImages(9)
+/**
+ * 只抓 app.config.ts 指定的那個 Cloudinary 資料夾。
+ *
+ * 原本抓的是「最新的 9 張」，所以後台一上傳作品照就會把首頁精選圖擠掉。
+ */
+const cloudinaryImages = cloudinaryStore.getFolderImages(hero.cloudinaryFolder)
 
-// 如果 Cloudinary 有圖片就用 Cloudinary，否則用原本的圖片
-const displayImages = computed(() => {
-  return heroImages.value.length > 0 
-    ? heroImages.value 
+/**
+ * Cloudinary 還沒回來、資料夾不存在或還沒放圖，就用 content/index.yml 的靜態圖。
+ *
+ * 原本這裡會顯示九塊灰色方塊 —— displayImages 算了卻沒被用到，等於沒有退路。
+ */
+const heroImages = computed(() => (
+  cloudinaryImages.value.length > 0
+    ? cloudinaryImages.value
     : props.page.hero.images
-})
-
-// 僅在 Cloudinary 成功取得圖片時才顯示圖片，否則顯示空白
-const showCloudinaryImages = computed(() => heroImages.value.length > 0)
-
+))
 </script>
 
 <template>
@@ -183,10 +187,8 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
       pause-on-hover
       class="py-2 -mx-8 sm:-mx-12 lg:-mx-16 [--duration:40s] [--gap:0.5rem]"
     >
-      <!-- Cloudinary 成功回傳後才顯示圖片 -->
       <Motion
         v-for="(img, index) in heroImages"
-        v-if="showCloudinaryImages"
         :key="'img-' + index"
         :initial="{
           scale: 1.1,
@@ -212,17 +214,6 @@ const showCloudinaryImages = computed(() => heroImages.value.length > 0)
           preload
         />
       </Motion>
-      <!-- 尚未成功呼叫前顯示空白佔位 -->
-      <Motion
-        v-for="index in 9"
-        v-if="!showCloudinaryImages"
-        :key="'placeholder-' + index"
-        :initial="{ opacity: 0 }"
-        :animate="{ opacity: 1 }"
-        :transition="{ duration: 0.3 }"
-        class="rounded-lg aspect-square bg-muted/30 shrink-0"
-        style="width: 234px; height: 234px"
-      />
     </UMarquee>
   </UPageHero>
 </template>

@@ -1,5 +1,17 @@
 export default defineAppConfig({
   hero: {
+    /**
+     * 首頁 Hero 跑馬燈要抓 Cloudinary 哪一個資料夾。
+     *
+     * 不指定資料夾的話抓的是「最新的 N 張」—— 後台每上傳一張作品照，
+     * 首頁的精選圖就會被擠掉一張，所以這裡必須固定一個資料夾。
+     * 資料夾不存在或還沒放圖，會退回 content/index.yml 的靜態圖
+     * （那組是範本附的風景照，不是陶藝照，所以不該長期靠它）。
+     *
+     * TQ001 本來是商品資料夾，現在暫時兼任首頁精選。想換成專門的首頁相簿時，
+     * 在 Cloudinary 開一個資料夾把圖放進去，改這裡一個字串就好。
+     */
+    cloudinaryFolder: 'TQ001',
     instagram: {
       'icon': 'i-simple-icons-instagram',
       'to': 'https://www.instagram.com/tranquil._.island/',
