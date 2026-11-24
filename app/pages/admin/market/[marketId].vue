@@ -56,16 +56,6 @@ const SPEC_FIELDS = [
   { key: 'variation', label: '手工製作的自然差異' }
 ] as const
 
-const IMAGE_KINDS = [
-  { value: '', label: '一般作品照' },
-  { value: 'front', label: '正面' },
-  { value: 'side', label: '側面' },
-  { value: 'back', label: '背面' },
-  { value: 'bottom', label: '底部' },
-  { value: 'detail', label: '陶土細節' },
-  { value: 'process', label: '製作過程' }
-]
-
 const editingId = ref<string | null>(null)
 const creating = ref(false)
 const saving = ref(false)
@@ -123,10 +113,6 @@ function openEdit(product: AdminProduct) {
 function close() {
   editingId.value = null
   creating.value = false
-}
-
-function addImage() {
-  form.images.push({ src: '', alt: '', kind: '' })
 }
 
 async function save() {
@@ -435,52 +421,10 @@ const statusTone: Record<string, string> = {
             />
           </UFormField>
 
-          <div>
-            <div class="mb-2 flex items-center justify-between">
-              <span class="text-sm">作品照片</span>
-              <UButton
-                size="xs"
-                variant="outline"
-                color="neutral"
-                icon="i-lucide-plus"
-                @click="addImage"
-              >
-                新增一張
-              </UButton>
-            </div>
-            <div class="space-y-2">
-              <div
-                v-for="(image, i) in form.images"
-                :key="i"
-                class="flex gap-2"
-              >
-                <UInput
-                  v-model="image.src"
-                  placeholder="圖片網址"
-                  class="flex-1"
-                />
-                <USelect
-                  v-model="image.kind"
-                  :items="IMAGE_KINDS"
-                  value-key="value"
-                  class="w-36"
-                />
-                <UButton
-                  icon="i-lucide-trash-2"
-                  color="error"
-                  variant="ghost"
-                  size="sm"
-                  @click="form.images.splice(i, 1)"
-                />
-              </div>
-              <p
-                v-if="form.images.length === 0"
-                class="text-xs text-neutral-500"
-              >
-                第一張會作為瀏覽器的主圖與清單縮圖。
-              </p>
-            </div>
-          </div>
+          <AdminProductImageField
+            v-model="form.images"
+            :market-id="marketId"
+          />
 
           <div class="grid grid-cols-2 gap-3">
             <UFormField
