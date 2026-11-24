@@ -149,3 +149,30 @@ describe('快照列表內容', () => {
     expect(thumbnails()).toHaveLength(0)
   })
 })
+
+describe('縮圖上的標記', () => {
+  it('追蹤中的作品顯示實心愛心', async () => {
+    await mountSheet({
+      products: [makeProduct('a', { isFollowing: true }), makeProduct('b')]
+    })
+
+    const badges = document.body.querySelectorAll('[aria-label="已追蹤"]')
+
+    expect(badges).toHaveLength(1)
+    // 實心靠 svg 模式 + fill-current，lucide 本身沒有實心愛心
+    expect(badges[0]?.querySelector('svg')?.getAttribute('class')).toContain('fill-current')
+  })
+
+  it('沒追蹤的作品不顯示愛心，也不帶陰影', async () => {
+    await mountSheet({ products: [makeProduct('a')] })
+
+    expect(document.body.querySelectorAll('[aria-label="已追蹤"]')).toHaveLength(0)
+    expect(document.body.innerHTML).not.toContain('shadow-sm')
+  })
+
+  it('看過的作品不再標示已瀏覽', async () => {
+    await mountSheet({ viewed: new Set([0, 1]), currentIndex: 2 })
+
+    expect(document.body.querySelectorAll('[aria-label="已瀏覽"]')).toHaveLength(0)
+  })
+})

@@ -437,9 +437,6 @@ function onPrimaryAction() {
           <p class="truncate text-sm text-neutral-700">
             {{ props.market.title }}
           </p>
-          <p class="text-xs tabular-nums text-neutral-400">
-            {{ String(index + 1).padStart(2, '0') }} / {{ String(total).padStart(2, '0') }}
-          </p>
         </div>
         <!-- 佔位，讓標題維持置中 -->
         <span class="size-8 shrink-0" />

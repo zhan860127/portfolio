@@ -177,27 +177,18 @@ function onHandleUp() {
                   >
                     {{ product.statusLabel }}
                   </span>
-                  <!-- 已瀏覽標記 -->
-                  <span
-                    v-if="props.viewed.has(index) && index !== props.currentIndex"
-                    class="absolute right-1 top-1 rounded-full bg-neutral-900/60 p-0.5"
-                    aria-label="已瀏覽"
-                  >
-                    <UIcon
-                      name="i-lucide-check"
-                      class="size-3 text-white"
-                    />
-                  </span>
-                  <!-- 追蹤標記。放右下角，不跟左上的狀態與右上的已瀏覽打架 -->
+                  <!-- 追蹤標記。放右下角，不跟左上的狀態打架 -->
                   <span
                     v-if="product.isFollowing"
-                    class="absolute bottom-1 right-1 rounded-full bg-white/85 p-1 shadow-sm"
+                    class="absolute bottom-1 right-1 rounded-full bg-white/85 p-1"
                     aria-label="已追蹤"
                     title="已追蹤"
                   >
+                    <!-- lucide 沒有實心愛心，用 svg 模式把描邊圖形填滿 -->
                     <UIcon
                       name="i-lucide-heart"
-                      class="size-3 text-primary-600"
+                      mode="svg"
+                      class="size-3 fill-current text-primary-600"
                     />
                   </span>
                 </div>

@@ -81,13 +81,26 @@ async function mountViewer(products: MarketProduct[]) {
   return wrapper
 }
 
+type ViewerWrapper = Awaited<ReturnType<typeof mountViewer>>
+
+/**
+ * 瀏覽進度改看 progressbar 的 aria 屬性。
+ * 原本斷言的是 header 上那行「01 / 02」文字，那段已經拿掉了，
+ * 而 aria-valuenow 本來就是這個狀態對外的正式說法。
+ */
+function progressOf(wrapper: ViewerWrapper) {
+  const bar = wrapper.find('[role="progressbar"]')
+
+  return `${bar.attributes('aria-valuenow')} / ${bar.attributes('aria-valuemax')}`
+}
+
 describe('測試項目 3：活動詳情顯示', () => {
   it('顯示活動名稱、瀏覽進度與商品資訊', async () => {
     const wrapper = await mountViewer([makeProduct(), makeProduct({ id: 'product-2', name: '釉燒小皿' })])
     const text = wrapper.text()
 
     expect(text).toContain('春季限定市集')
-    expect(text).toContain('01 / 02')
+    expect(progressOf(wrapper)).toBe('1 / 2')
     expect(text).toContain('手捏湯碗')
     expect(text).toContain('1,800')
     expect(text).toContain('訂金 NT$ 500')
@@ -264,7 +277,7 @@ describe('連點右側快速翻閱（手動測試發現的回歸）', () => {
     await nextTick()
 
     expect(wrapper.text()).toContain('第三件')
-    expect(wrapper.text()).toContain('03 / 03')
+    expect(progressOf(wrapper)).toBe('3 / 3')
   })
 
   it('點左側回到上一件', async () => {
@@ -326,7 +339,7 @@ describe('鍵盤操作（需求 14）', () => {
     await nextTick()
 
     expect(wrapper.text()).toContain('第二件')
-    expect(wrapper.text()).toContain('02 / 02')
+    expect(progressOf(wrapper)).toBe('2 / 2')
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
     await nextTick()
@@ -341,6 +354,6 @@ describe('鍵盤操作（需求 14）', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
     await nextTick()
 
-    expect(wrapper.text()).toContain('01 / 01')
+    expect(progressOf(wrapper)).toBe('1 / 1')
   })
 })
