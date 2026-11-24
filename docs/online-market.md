@@ -399,6 +399,31 @@ $env:DATABASE_URL_TEST = "postgres://..."; pnpm run test:db
 另外 `AppHeader` 在 375px 寬會溢出畫面（加上「市集」之後更明顯），
 已改成不超出視窗、放不下時整列可水平捲動。
 
+### 10.9 ⚠️ 上線前必須拆開 preview 與 production 資料庫
+
+目前 Vercel 的 Preview 與 Production 兩個環境指向**完全同一個 Neon endpoint 與同一個 `neondb`**：
+
+```
+preview     ep-sparkling-recipe-bi4af4ru...ap-southeast-1.aws.neon.tech/neondb
+production  ep-sparkling-recipe-bi4af4ru...ap-southeast-1.aws.neon.tech/neondb
+```
+
+現階段這樣反而方便：在 preview 建好的活動同時就是正式資料，只要建一次。
+目前也沒有真實訂單可以被弄髒。
+
+**但在開放收單之前一定要拆開。** 否則 preview 上的一筆測試訂單會混進真實訂單，
+而且後台按「確認售出」會把一件真的作品標成已售完。
+
+做法（擇一）：
+
+- **一條長期的 `preview` branch**：Neon dashboard 從 `main` 建分支，
+  再把 Vercel Preview 環境的 `DATABASE_URL` / `DATABASE_URL_UNPOOLED` 改指向它。
+  注意之後 `main` 的新 migration 不會自動同步到這條分支，要單獨跑或砍掉重建。
+- **每個 preview 部署自動開 branch**：Neon 的 Vercel integration 內建選項，
+  每次從 `main` 複製，schema 自動跟上，但對單人開發是多餘的複雜度。
+
+改完都要重新部署才生效（Vercel 的環境變數是部署當下綁定的）。
+
 ### 10.7 既有程式碼的 lint 問題
 
 `pnpm run lint` 目前仍然失敗，但**失敗的都是這次沒有動到的既有檔案**：
