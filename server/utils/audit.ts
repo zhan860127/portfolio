@@ -14,6 +14,7 @@ export type AuditAction
     | 'order.cancel'
     | 'order.mark_expired'
     | 'waitlist.notify'
+    | 'waitlist.promote'
     | 'waitlist.cancel'
     | 'user.set_role'
 

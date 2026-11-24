@@ -12,7 +12,11 @@ import {
   users,
   waitlistEntries
 } from '../../server/database/schema'
-import { isUniqueViolation, reserveProductAndCreateOrder } from '../../server/utils/marketOrders'
+import {
+  isUniqueViolation,
+  promoteFirstWaitlistEntry,
+  reserveProductAndCreateOrder
+} from '../../server/utils/marketOrders'
 
 /**
  * 需要真實 Postgres 的整合測試，對應需求 15 的測試項目 18、22，
@@ -335,6 +339,100 @@ describe.skipIf(!CONNECTION)('市集訂單的資料庫保證', () => {
       .limit(1)
 
     expect(entry?.status).toBe('converted')
+
+    await db.delete(waitlistEntries).where(eq(waitlistEntries.productId, ids.product))
+  })
+
+  it('取消並釋放後，作品直接保留給候補第一順位', async () => {
+    const market = await loadMarket()
+    const product = await loadProduct()
+    const base = Date.now()
+
+    // 刻意反過來插入：順位要由 createdAt 決定，不是由寫入順序決定
+    await db.insert(waitlistEntries).values([
+      {
+        userId: ids.buyers[1]!,
+        productId: ids.product,
+        status: 'waiting',
+        createdAt: new Date(base)
+      },
+      {
+        userId: ids.buyers[0]!,
+        productId: ids.product,
+        status: 'waiting',
+        createdAt: new Date(base - 60000)
+      }
+    ])
+
+    const promoted = await promoteFirstWaitlistEntry(db, { market, product })
+
+    expect(promoted).not.toBeNull()
+    expect(promoted!.userId).toBe(ids.buyers[0])
+
+    // 重點：商品不會停在「開放選購」等人來搶，而是直接保留中
+    expect((await loadProduct()).status).toBe('reserved')
+
+    const [order] = await db
+      .select()
+      .from(marketOrders)
+      .where(eq(marketOrders.productId, ids.product))
+
+    expect(order?.userId).toBe(ids.buyers[0])
+    expect(order?.status).toBe('pending_deposit')
+
+    const entries = await db
+      .select()
+      .from(waitlistEntries)
+      .where(eq(waitlistEntries.productId, ids.product))
+
+    expect(entries.find(entry => entry.userId === ids.buyers[0])?.status).toBe('converted')
+    // 後面的人留在佇列上，沒有被一起清掉
+    expect(entries.find(entry => entry.userId === ids.buyers[1])?.status).toBe('waiting')
+
+    await db.delete(waitlistEntries).where(eq(waitlistEntries.productId, ids.product))
+  })
+
+  it('沒有人候補時不建立訂單，商品留在開放選購', async () => {
+    const market = await loadMarket()
+    const product = await loadProduct()
+
+    expect(await promoteFirstWaitlistEntry(db, { market, product })).toBeNull()
+
+    const orders = await db
+      .select()
+      .from(marketOrders)
+      .where(eq(marketOrders.productId, ids.product))
+
+    expect(orders).toHaveLength(0)
+    expect((await loadProduct()).status).toBe('available')
+  })
+
+  it('商品已經被別人保留走時，不會硬塞給候補者', async () => {
+    const market = await loadMarket()
+    const product = await loadProduct()
+
+    await db.insert(waitlistEntries).values({
+      userId: ids.buyers[1]!,
+      productId: ids.product,
+      status: 'waiting'
+    })
+
+    const taken = await reserveProductAndCreateOrder(db, {
+      userId: ids.buyers[0]!,
+      market,
+      product
+    })
+
+    expect(taken.ok).toBe(true)
+    expect(await promoteFirstWaitlistEntry(db, { market, product })).toBeNull()
+
+    const entries = await db
+      .select()
+      .from(waitlistEntries)
+      .where(eq(waitlistEntries.productId, ids.product))
+
+    // 候補紀錄要保持原狀，之後還能再通知他
+    expect(entries[0]?.status).toBe('waiting')
 
     await db.delete(waitlistEntries).where(eq(waitlistEntries.productId, ids.product))
   })

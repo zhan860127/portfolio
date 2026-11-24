@@ -54,24 +54,44 @@ const ACTIONS: Record<string, Array<{ action: string, label: string, color: 'pri
   pending_deposit: [
     { action: 'confirm_deposit', label: '確認訂金入帳', color: 'primary' },
     { action: 'mark_expired', label: '標記逾期', color: 'neutral' },
-    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並把作品放回市場？' }
+    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並釋放作品？有人候補的話會直接保留給第一順位。' }
   ],
   payment_submitted: [
     { action: 'confirm_deposit', label: '確認訂金入帳', color: 'primary' },
     { action: 'revert_payment', label: '退回重填', color: 'neutral' },
-    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並把作品放回市場？' }
+    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並釋放作品？有人候補的話會直接保留給第一順位。' }
   ],
   deposit_confirmed: [
     { action: 'confirm_sold', label: '確認售出', color: 'primary', confirm: '確認售出後作品會變成已售完，候補名單也會結束。' },
-    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並把作品放回市場？' }
+    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並釋放作品？有人候補的話會直接保留給第一順位。' }
   ],
   expired: [
     { action: 'confirm_deposit', label: '確認訂金入帳', color: 'primary' },
-    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並把作品放回市場？' }
+    { action: 'cancel', label: '取消並釋放商品', color: 'error', confirm: '取消訂單並釋放作品？有人候補的話會直接保留給第一順位。' }
   ]
 }
 
 const busy = ref<string | null>(null)
+
+interface TransitionResult {
+  statusLabel: string
+  waitingCount: number
+  /** 取消並釋放時，作品若直接保留給候補第一順位，這裡會帶回新訂單 */
+  promoted: { orderId: string, userEmail: string } | null
+}
+
+/** 釋放之後作品可能已經有新主人，別再叫管理員去發通知。 */
+function describeTransition(result: TransitionResult): string | undefined {
+  if (result.promoted) {
+    const base = `已直接保留給候補第一順位（${result.promoted.userEmail}）`
+
+    return result.waitingCount > 0 ? `${base}，後面還有 ${result.waitingCount} 人候補` : base
+  }
+
+  return result.waitingCount > 0
+    ? `這件作品有 ${result.waitingCount} 人候補，可到商品管理發送通知`
+    : undefined
+}
 
 async function runAction(order: AdminOrder, action: { action: string, label: string, confirm?: string }) {
   if (action.confirm && !window.confirm(action.confirm)) {
@@ -81,7 +101,7 @@ async function runAction(order: AdminOrder, action: { action: string, label: str
   busy.value = order.id
 
   try {
-    const result = await $fetch<{ statusLabel: string, waitingCount: number }>(
+    const result = await $fetch<TransitionResult>(
       `/api/admin/market/orders/${order.id}/transition`,
       { method: 'POST', body: { action: action.action } }
     )
@@ -90,9 +110,7 @@ async function runAction(order: AdminOrder, action: { action: string, label: str
 
     toast.add({
       title: `已更新為「${result.statusLabel}」`,
-      description: result.waitingCount > 0
-        ? `這件作品有 ${result.waitingCount} 人候補，可到商品管理發送通知`
-        : undefined,
+      description: describeTransition(result),
       color: 'success'
     })
   } catch (error) {

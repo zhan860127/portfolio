@@ -1,10 +1,17 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import type * as schema from '../database/schema'
-import { marketOrders, marketProducts, waitlistEntries } from '../database/schema'
+import { marketOrders, marketProducts, users, waitlistEntries } from '../database/schema'
 import type { Market, MarketOrder, MarketProduct } from '../database/schema'
 
 export type MarketDb = PostgresJsDatabase<typeof schema>
+
+/**
+ * db.transaction() 交出來的 tx。型別和 db 不同，但這裡用到的 API 一樣。
+ * 收 tx 是為了讓呼叫端可以把「保留商品」和自己的其他寫入綁在同一個 transaction，
+ * 中間不會出現對外可見的空檔（見後台的取消並釋放）。
+ */
+export type MarketTx = Parameters<Parameters<MarketDb['transaction']>[0]>[0]
 
 /** Postgres 唯一鍵衝突 */
 const UNIQUE_VIOLATION = '23505'
@@ -31,7 +38,7 @@ export type ReserveResult
  *      直接 insert，第二筆仍然進不來。
  */
 export async function reserveProductAndCreateOrder(
-  db: MarketDb,
+  db: MarketDb | MarketTx,
   params: {
     userId: string
     market: Pick<Market, 'id' | 'depositDueHours'>
@@ -101,4 +108,62 @@ export async function reserveProductAndCreateOrder(
 
     throw error
   }
+}
+
+export interface PromotedWaitlistEntry {
+  order: MarketOrder
+  userId: string
+  email: string
+}
+
+/**
+ * 把作品直接保留給候補第一順位，並建立他的訂單。
+ *
+ * 抽出來的理由和 reserveProductAndCreateOrder 一樣：這段的正確性
+ * （誰排第一、搶輸的時候會怎樣）只有真正的資料庫能驗，而 event handler
+ * 需要完整的 event 才叫得動，在整合測試裡打不到。
+ *
+ * 呼叫端若把自己的 tx 傳進來，整段會和呼叫端的寫入同屬一個 transaction，
+ * 商品不會出現對外可見的「開放選購」空檔。
+ *
+ * 回 null 有兩種情況：沒有人在候補，或商品在這之前就被別人搶走了。
+ */
+export async function promoteFirstWaitlistEntry(
+  db: MarketDb | MarketTx,
+  params: {
+    market: Pick<Market, 'id' | 'depositDueHours'>
+    product: Pick<MarketProduct, 'id' | 'name' | 'priceCents' | 'depositCents' | 'images'>
+    now?: Date
+  }
+): Promise<PromotedWaitlistEntry | null> {
+  const now = params.now ?? new Date()
+
+  const [next] = await db
+    .select({ entry: waitlistEntries, email: users.email })
+    .from(waitlistEntries)
+    .innerJoin(users, eq(waitlistEntries.userId, users.id))
+    .where(and(
+      eq(waitlistEntries.productId, params.product.id),
+      eq(waitlistEntries.status, 'waiting')
+    ))
+    .orderBy(asc(waitlistEntries.createdAt))
+    .limit(1)
+
+  if (!next) {
+    return null
+  }
+
+  // 這支會順便把他的候補紀錄標成 converted
+  const reserved = await reserveProductAndCreateOrder(db, {
+    userId: next.entry.userId,
+    market: params.market,
+    product: params.product,
+    now
+  })
+
+  if (!reserved.ok) {
+    return null
+  }
+
+  return { order: reserved.order, userId: next.entry.userId, email: next.email }
 }
