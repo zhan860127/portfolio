@@ -16,8 +16,26 @@ export type MarketTx = Parameters<Parameters<MarketDb['transaction']>[0]>[0]
 /** Postgres 唯一鍵衝突 */
 const UNIQUE_VIOLATION = '23505'
 
+/**
+ * 判斷是不是唯一鍵衝突。
+ *
+ * Drizzle 從 0.44 起會把驅動的錯誤包進 `DrizzleQueryError`，真正帶著 SQLSTATE 的
+ * `PostgresError` 掛在 `cause` 上。只比對最外層的 `code` 會永遠得到 false ——
+ * 於是「被搶走了」會變成未捕捉的例外（500），而不是乾淨的 409。
+ * 所以要沿著 cause 往下找；限制層數只是避免有人做出循環的 cause。
+ */
 export function isUniqueViolation(error: unknown): boolean {
-  return (error as { code?: string } | null)?.code === UNIQUE_VIOLATION
+  let current: unknown = error
+
+  for (let depth = 0; current && depth < 5; depth++) {
+    if ((current as { code?: string }).code === UNIQUE_VIOLATION) {
+      return true
+    }
+
+    current = (current as { cause?: unknown }).cause
+  }
+
+  return false
 }
 
 export type ReserveResult

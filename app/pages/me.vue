@@ -4,9 +4,11 @@ import type { MarketOrder } from '~/stores/market'
 /**
  * 個人頁（需求 11）。
  *
- * 三個分頁刻意分開而不是混成一張清單：
+ * 分頁刻意分開而不是混成一張清單：
  * 「我訂購的」「我只是追蹤的」「我正在排隊的」在使用者心裡是完全不同的承諾，
  * 混在一起最容易讓人以為追蹤就等於買到了。
+ * 「寄貨單」獨立一頁，是因為它跨多筆訂單 —— 掛在任何一筆訂單底下都會讓人
+ * 以為要一件一件各填一次。
  */
 const marketStore = useMarketStore()
 const { loggedIn } = useUserSession()
@@ -15,13 +17,14 @@ const toast = useToast()
 
 useSeoMeta({ title: '我的市集', robots: 'noindex' })
 
-const tab = ref<'orders' | 'follows' | 'waitlist'>('orders')
+const tab = ref<'orders' | 'shipping' | 'follows' | 'waitlist'>('orders')
 
 if (loggedIn.value) {
   await Promise.all([
     marketStore.fetchMyOrders(),
     marketStore.fetchMyFollows(),
-    marketStore.fetchMyWaitlist()
+    marketStore.fetchMyWaitlist(),
+    marketStore.fetchShipping()
   ])
 }
 
@@ -29,7 +32,7 @@ if (loggedIn.value) {
 const ORDER_GROUPS = [
   { key: 'pending_deposit', title: '待付訂金', hint: '請在期限前完成匯款並填寫末五碼' },
   { key: 'payment_submitted', title: '待人工核對', hint: '我們正在比對銀行入帳，核對完成會再通知你' },
-  { key: 'deposit_confirmed', title: '已確認訂金', hint: '訂金已入帳，作品正在為你準備' },
+  { key: 'deposit_confirmed', title: '已確認訂金', hint: '訂金已入帳，可以填寄貨單安排出貨了' },
   { key: 'completed', title: '已完成訂單', hint: '' }
 ] as const
 
@@ -169,6 +172,7 @@ const productStatusTone: Record<string, string> = {
         <button
           v-for="item in [
             { key: 'orders', label: `我的訂單 (${marketStore.myOrders.length})` },
+            { key: 'shipping', label: `寄貨單 (${marketStore.shipping?.eligibleOrders.length ?? 0})` },
             { key: 'follows', label: `我的追蹤 (${marketStore.myFollows.length})` },
             { key: 'waitlist', label: `我的候補 (${marketStore.myWaitlist.length})` }
           ]"
@@ -212,6 +216,16 @@ const productStatusTone: Record<string, string> = {
             >
               {{ group.hint }}
             </p>
+            <UButton
+              v-if="group.key === 'deposit_confirmed'"
+              size="xs"
+              variant="link"
+              class="mt-1 px-0"
+              trailing-icon="i-lucide-arrow-right"
+              @click="tab = 'shipping'"
+            >
+              去填寄貨單
+            </UButton>
           </div>
 
           <article
@@ -294,6 +308,11 @@ const productStatusTone: Record<string, string> = {
         <div v-if="groupedOrders.some(g => g.key === 'pending_deposit' && g.orders.length > 0)">
           <MarketBankInfo />
         </div>
+      </div>
+
+      <!-- 寄貨單 -->
+      <div v-else-if="tab === 'shipping'">
+        <MarketShippingForm />
       </div>
 
       <!-- 我的追蹤 -->

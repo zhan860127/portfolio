@@ -15,6 +15,13 @@
       "when": 1795425559775,
       "tag": "0001_online_market",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795590221199,
+      "tag": "0002_shipping_requests",
+      "breakpoints": true
     }
   ]
 }

@@ -138,7 +138,7 @@ async function togglePublish(market: AdminMarket) {
           市集後台
         </h1>
         <p class="mt-1 text-sm text-neutral-500">
-          活動、商品、訂單與候補管理
+          活動、商品、訂單、候補與寄貨單管理
         </p>
       </div>
       <div class="flex gap-2">
@@ -149,6 +149,14 @@ async function togglePublish(market: AdminMarket) {
           icon="i-lucide-receipt"
         >
           訂單管理
+        </UButton>
+        <UButton
+          to="/admin/market/shipping"
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-package"
+        >
+          寄貨單
         </UButton>
         <UButton
           icon="i-lucide-plus"

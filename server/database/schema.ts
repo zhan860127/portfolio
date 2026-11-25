@@ -94,6 +94,12 @@ export const waitlistStatus = pgEnum('waitlist_status', [
   'cancelled'
 ])
 
+/**
+ * 寄貨單狀態。
+ * pending 是「客人已送出、等著安排出貨」，shipped 之後就不再接受客人修改。
+ */
+export const shippingStatus = pgEnum('shipping_status', ['pending', 'shipped', 'cancelled'])
+
 export interface ProductImage {
   src: string
   alt?: string
@@ -168,6 +174,14 @@ export const marketOrders = pgTable('market_orders', {
   productNameSnapshot: text('product_name_snapshot').notNull(),
   productImageSnapshot: text('product_image_snapshot'),
   status: marketOrderStatus('status').notNull().default('pending_deposit'),
+  /**
+   * 這筆訂單被納入哪一張寄貨單。NULL = 還沒納入任何一張。
+   *
+   * 用欄位而不是中介表：「一筆訂單最多只能出現在一張寄貨單上」
+   * 這件事直接由欄位本身保證，不需要再補一個唯一索引去擋。
+   * 寄貨單被取消時這裡會回到 NULL，訂單就能重新併進新的一張。
+   */
+  shippingRequestId: uuid('shipping_request_id').references(() => shippingRequests.id, { onDelete: 'set null' }),
   expiresAt: timestamp('expires_at', { withTimezone: true }),
   note: text('note'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -195,6 +209,56 @@ export const paymentSubmissions = pgTable('payment_submissions', {
   submittedAt: timestamp('submitted_at', { withTimezone: true }).notNull().defaultNow()
 }, table => [
   index('payment_submissions_order_id_idx').on(table.orderId)
+])
+
+/** 寄貨單成立當下的訂單快照。取消後 market_orders 的連結會被清掉，這份快照是唯一的歷史。 */
+export interface ShippingItemSnapshot {
+  orderId: string
+  productName: string
+  amountCents: number
+  depositCents: number
+}
+
+/**
+ * 寄貨單（7-ELEVEN 貨到付款）。
+ *
+ * 一張寄貨單 = 一個包裹，可以合併同一位客人的多筆訂單。
+ * 市集是「一單一件」，所以不合併的話客人買三件就要付三次運費。
+ */
+export const shippingRequests = pgTable('shipping_requests', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  recipientName: text('recipient_name').notNull(),
+  recipientPhone: text('recipient_phone').notNull(),
+  storeName: text('store_name').notNull(),
+  /** 7-ELEVEN 店號。客人不一定查得到，所以允許空白 */
+  storeCode: text('store_code'),
+  note: text('note'),
+  /**
+   * 金額一律快照。運費或商品價格日後調整，都不該改變已經送出的寄貨單 ——
+   * 客人看到的「貨到付款應付」必須跟當初送出時一模一樣。
+   */
+  itemTotalCents: integer('item_total_cents').notNull(),
+  depositPaidCents: integer('deposit_paid_cents').notNull(),
+  shippingCents: integer('shipping_cents').notNull(),
+  /** 貨到付款時實際要收的錢 = 作品金額合計 − 已付訂金 + 運費 */
+  codCents: integer('cod_cents').notNull(),
+  items: jsonb('items').$type<ShippingItemSnapshot[]>().notNull().default(sql`'[]'::jsonb`),
+  status: shippingStatus('status').notNull().default('pending'),
+  shippedAt: timestamp('shipped_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+}, table => [
+  index('shipping_requests_user_created_idx').on(table.userId, table.createdAt),
+  index('shipping_requests_status_idx').on(table.status),
+  /**
+   * 一位客人同時只能有一張「待出貨」的寄貨單。
+   * 沒有這條的話，重複點送出就會產生兩張內容幾乎一樣的單子，
+   * 而你在後台沒辦法判斷該寄哪一張。
+   */
+  uniqueIndex('shipping_requests_one_pending_per_user_idx')
+    .on(table.userId)
+    .where(sql`status = 'pending'`)
 ])
 
 export const productFollows = pgTable('product_follows', {
@@ -270,11 +334,17 @@ export const marketOrdersRelations = relations(marketOrders, ({ one, many }) => 
   user: one(users, { fields: [marketOrders.userId], references: [users.id] }),
   product: one(marketProducts, { fields: [marketOrders.productId], references: [marketProducts.id] }),
   market: one(markets, { fields: [marketOrders.marketId], references: [markets.id] }),
+  shippingRequest: one(shippingRequests, { fields: [marketOrders.shippingRequestId], references: [shippingRequests.id] }),
   payments: many(paymentSubmissions)
 }))
 
 export const paymentSubmissionsRelations = relations(paymentSubmissions, ({ one }) => ({
   order: one(marketOrders, { fields: [paymentSubmissions.orderId], references: [marketOrders.id] })
+}))
+
+export const shippingRequestsRelations = relations(shippingRequests, ({ one, many }) => ({
+  user: one(users, { fields: [shippingRequests.userId], references: [users.id] }),
+  orders: many(marketOrders)
 }))
 
 export const productFollowsRelations = relations(productFollows, ({ one }) => ({
@@ -297,6 +367,7 @@ export type Market = typeof markets.$inferSelect
 export type MarketProduct = typeof marketProducts.$inferSelect
 export type MarketOrder = typeof marketOrders.$inferSelect
 export type PaymentSubmission = typeof paymentSubmissions.$inferSelect
+export type ShippingRequest = typeof shippingRequests.$inferSelect
 export type ProductFollow = typeof productFollows.$inferSelect
 export type WaitlistEntry = typeof waitlistEntries.$inferSelect
 export type AuditLog = typeof auditLogs.$inferSelect
@@ -304,4 +375,5 @@ export type AuditLog = typeof auditLogs.$inferSelect
 export type MarketStatus = (typeof marketStatus.enumValues)[number]
 export type MarketProductStatus = (typeof marketProductStatus.enumValues)[number]
 export type MarketOrderStatus = (typeof marketOrderStatus.enumValues)[number]
+export type ShippingStatus = (typeof shippingStatus.enumValues)[number]
 export type WaitlistStatus = (typeof waitlistStatus.enumValues)[number]

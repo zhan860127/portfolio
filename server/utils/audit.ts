@@ -16,12 +16,14 @@ export type AuditAction
     | 'waitlist.notify'
     | 'waitlist.promote'
     | 'waitlist.cancel'
+    | 'shipping.mark_shipped'
+    | 'shipping.cancel'
     | 'user.set_role'
 
 export interface AuditInput {
   actorId: string | null
   action: AuditAction
-  entityType: 'market' | 'product' | 'order' | 'waitlist' | 'user'
+  entityType: 'market' | 'product' | 'order' | 'waitlist' | 'user' | 'shipping'
   entityId: string
   previousValue?: unknown
   newValue?: unknown

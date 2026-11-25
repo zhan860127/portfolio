@@ -42,6 +42,10 @@
 Migration：`server/database/migrations/0001_online_market.sql`（純新增，不改既有表結構，
 唯一的例外是 `users` 新增一個有預設值的 `role` 欄位）。
 
+後續：`0002_shipping_requests.sql` 新增寄貨單（一個 enum、一張表，
+以及 `market_orders` 一個可為 NULL 的 `shipping_request_id`）。
+**已套用在本機開發資料庫；Vercel 上的 Neon 還沒跑。**
+
 | 表 | 用途 |
 |---|---|
 | `markets` | 活動：起訖時間、狀態、訂金期限、候補窗口長度 |
@@ -50,6 +54,7 @@ Migration：`server/database/migrations/0001_online_market.sql`（純新增，�
 | `payment_submissions` | 匯款資料：末五碼、金額、時間、備註 |
 | `product_follows` | 追蹤 |
 | `waitlist_entries` | 候補：狀態、通知時間、優先購買窗口截止時間 |
+| `shipping_requests` | 寄貨單：7-ELEVEN 貨到付款的收件資訊與金額快照（見 `docs/shipping.md`） |
 | `audit_logs` | 管理員操作紀錄 |
 
 ### 2.1 訂單公平性的根基：三個唯一約束
@@ -271,6 +276,16 @@ ADMIN_EMAILS=donlin_zhan@tutk.com
 
 容器重建後資料會清空，重跑 `pnpm run db:migrate` 即可。
 
+同一個容器裡另外開了一個 `market_test` 給 `pnpm run test:db` 用，
+跟開發用的 `market` 分開，測試寫進去的資料不會出現在後台：
+
+```powershell
+docker exec tranquil-market-db psql -U postgres -c "CREATE DATABASE market_test"
+```
+
+容器沒跑的時候 `pnpm run db:migrate` 會是 `ECONNREFUSED 127.0.0.1:55432`，
+先 `docker start tranquil-market-db` 再跑。
+
 ---
 
 ## 8. 商業規則（已與你確認）
@@ -301,15 +316,19 @@ pnpm run test
 
 | 專案 | 內容 | 數量 |
 |---|---|---|
-| `unit` | 手勢裁決、縮放數學、訂單狀態機、候補規則 | 73 |
-| `nuxt` | 元件渲染與互動（Nuxt runtime） | 29 |
-| `db` | 真實 Postgres 的併發與唯一約束 | 7（預設跳過） |
+| `unit` | 手勢裁決、縮放數學、訂單狀態機、候補與寄貨單規則 | 93 |
+| `nuxt` | 元件渲染與互動（Nuxt runtime） | 64 |
+| `db` | 真實 Postgres 的併發與唯一約束 | 17（沒設連線時跳過） |
 
-資料庫整合測試需要指向一個**可以被清空的測試資料庫**：
+資料庫整合測試需要指向一個**可以被清空的測試資料庫**。
+開發容器裡已經另外開了一個 `market_test`，與開發用的 `market` 分開，
+測試資料不會混進你平常在後台看到的內容：
 
 ```powershell
-$env:DATABASE_URL_TEST = "postgres://..."; pnpm run test:db
+$env:DATABASE_URL_TEST = "postgres://postgres:devpass@127.0.0.1:55432/market_test"; pnpm run test:db
 ```
+
+這 17 個測試全部實際跑過並通過（含兩次連續執行，確認清理是冪等的）。
 
 ### 24 個測試項目的覆蓋對照
 
@@ -331,8 +350,8 @@ $env:DATABASE_URL_TEST = "postgres://..."; pnpm run test:db
 | 14 | 下單者看到待付訂金 | `tests/nuxt/story-viewer.spec.ts` |
 | 15 | 其他人看到保留中 | `tests/unit/market-rules.spec.ts` + `story-viewer` |
 | 16 | 可以加入候補 | `tests/unit/market-rules.spec.ts` |
-| 17 | 不能重複排隊 | `tests/db/market-orders.spec.ts`（唯一約束） |
-| 18 | **併發只有一筆有效訂單** | `tests/db/market-orders.spec.ts`（真實併發） |
+| 17 | 不能重複排隊 | `tests/db/market-orders.spec.ts`（唯一約束，已實跑） |
+| 18 | **併發只有一筆有效訂單** | `tests/db/market-orders.spec.ts`（真實併發，已實跑） |
 | 19 | 末五碼不會自動售完 | `tests/unit/market-rules.spec.ts` |
 | 20 | 確認訂金後才能售出 | `tests/unit/market-rules.spec.ts` |
 | 21 | 已售完不能購買 | `tests/unit/market-rules.spec.ts` + `story-viewer` |
@@ -447,15 +466,37 @@ production  ep-sparkling-recipe-bi4af4ru...ap-southeast-1.aws.neon.tech/neondb
 
 ---
 
+### 10.10 第一次實跑資料庫測試揪出的既有 bug
+
+`tests/db` 這組測試一直沒有真的跑過（本機沒有 Postgres）。
+開了開發容器、第一次實際執行之後，10 個測試有 3 個失敗，而且是同一個原因：
+
+`server/utils/marketOrders.ts` 的 `isUniqueViolation()` 只比對最外層的
+`error.code`，但 **Drizzle 從 0.44 起會把驅動的錯誤包進 `DrizzleQueryError`**，
+真正帶著 SQLSTATE `23505` 的 `PostgresError` 掛在 `cause` 上，
+所以這個函式在這個版本永遠回 false。
+
+實際後果：`reserveProductAndCreateOrder()` 撞到 partial unique index 時，
+不會回傳 `{ ok: false, reason: 'taken' }`，而是把例外往外丟 ——
+客人看到的是 500 而不是「有人剛剛搶先一步，可以加入候補」。
+（平常的競態由條件式 UPDATE 擋住，所以這條路是第二層防線，影響範圍有限，
+但程式碼的原意是壞的。）
+
+已修正成沿著 `cause` 往下找，三個測試隨即通過。
+
+---
+
 ## 11. 檔案清單
 
 ### 新增
 
 ```
 server/database/migrations/0001_online_market.sql
+server/database/migrations/0002_shipping_requests.sql
 server/utils/market.ts            純邏輯：狀態推導、權限判斷、序列化
 server/utils/marketData.ts        viewer context 組裝（避免 N+1）
 server/utils/marketOrders.ts      搶保留權（可測試的併發核心）
+server/utils/shipping.ts          寄貨單的純邏輯：金額、收件資訊驗證、狀態轉換
 server/utils/admin.ts             requireAdminUser
 server/utils/audit.ts             操作紀錄
 server/api/market/**              前台 API（活動、商品、訂單、追蹤、候補）
@@ -469,12 +510,14 @@ app/composables/useGuestFollows.ts
 app/middleware/admin.ts
 app/layouts/immersive.vue
 app/components/market/            MarketEntry / StoryViewer / ZoomImage /
-                                  SnapshotSheet / ProductDetail / BankInfo
+                                  SnapshotSheet / ProductDetail / BankInfo /
+                                  ShippingForm
 app/pages/market/                 index.vue、[marketId].vue
 app/pages/me.vue
-app/pages/admin/market/           index.vue、[marketId].vue、orders.vue
+app/pages/admin/market/           index.vue、[marketId].vue、orders.vue、shipping.vue
 
 tests/unit/、tests/nuxt/、tests/db/
+                                  （含 shipping-rules / shipping-form / db 的 shipping）
 vitest.config.ts
 auth.d.ts
 ```
@@ -483,11 +526,15 @@ auth.d.ts
 
 | 檔案 | 改動 |
 |---|---|
-| `server/database/schema.ts` | 新增 7 張表 + `users.role` |
+| `server/database/schema.ts` | 新增 7 張表 + `users.role`；之後再加 `shipping_requests` 與 `market_orders.shipping_request_id` |
 | `server/utils/user.ts` | 依 `ADMIN_EMAILS` 提權（只升不降） |
 | `server/routes/auth/google.get.ts` | session 帶入 `role` |
-| `app/pages/index.vue` | Hero 之後插入市集入口 |
+| `app/pages/index.vue` | 以具名插槽把市集入口放進 Hero 的 logo 正下方 |
+| `app/components/landing/Hero.vue` | 新增 `afterLogo` 插槽；沒有傳插槽時版型與原本完全一致 |
 | `app/components/AppHeader.vue` | 市集連結、個人頁、後台入口 |
+| `app/pages/me.vue` | 新增「寄貨單」分頁 |
+| `server/utils/audit.ts` | 新增 `shipping.*` 操作紀錄 |
+| `server/utils/marketOrders.ts` | 修正 `isUniqueViolation()` 沒有穿透 `DrizzleQueryError` 的 bug（見 10.10） |
 | `app/app.config.ts` | `primary: 'brand'`、匯款資訊 |
 | `app/assets/css/main.css` | 品牌色 token、safe-area、手勢與動畫類別 |
 | `package.json` | 測試指令與相依 |

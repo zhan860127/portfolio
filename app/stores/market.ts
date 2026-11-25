@@ -91,6 +91,58 @@ export interface MarketWaitlistEntry {
   createdAt: string
 }
 
+export interface ShippingItem {
+  orderId: string
+  productName: string
+  amount: number
+  deposit: number
+}
+
+export interface ShippingRequest {
+  id: string
+  recipientName: string
+  recipientPhone: string
+  storeName: string
+  storeCode: string | null
+  note: string | null
+  /** 作品金額合計 */
+  itemTotal: number
+  /** 已付訂金合計 */
+  depositPaid: number
+  /** 運費（由伺服器決定，前端不寫死） */
+  shipping: number
+  /** 貨到付款時要收的金額 */
+  cod: number
+  items: ShippingItem[]
+  status: 'pending' | 'shipped' | 'cancelled'
+  statusLabel: string
+  canEdit: boolean
+  shippedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ShippableOrder extends MarketOrder {
+  /** 是否已經被目前這張寄貨單收走 */
+  includedInCurrent: boolean
+}
+
+export interface ShippingOverview {
+  shippingFee: number
+  current: ShippingRequest | null
+  history: ShippingRequest[]
+  eligibleOrders: ShippableOrder[]
+}
+
+export interface ShippingPayload {
+  orderIds: string[]
+  recipientName: string
+  recipientPhone: string
+  storeName: string
+  storeCode?: string
+  note?: string
+}
+
 export const useMarketStore = defineStore('market', () => {
   const markets = ref<MarketSummary[]>([])
   const marketsLoading = ref(false)
@@ -102,6 +154,7 @@ export const useMarketStore = defineStore('market', () => {
   const myOrders = ref<MarketOrder[]>([])
   const myFollows = ref<MarketFollow[]>([])
   const myWaitlist = ref<MarketWaitlistEntry[]>([])
+  const shipping = ref<ShippingOverview | null>(null)
 
   const error = ref<string | null>(null)
 
@@ -362,6 +415,50 @@ export const useMarketStore = defineStore('market', () => {
     myWaitlist.value = await $fetch<MarketWaitlistEntry[]>('/api/market/waitlist')
   }
 
+  /* ---------------------------------------------------------------- */
+  /*  寄貨單                                                           */
+  /* ---------------------------------------------------------------- */
+
+  async function fetchShipping() {
+    shipping.value = await $fetch<ShippingOverview>('/api/market/shipping')
+  }
+
+  /**
+   * 送出或修改寄貨單。
+   *
+   * 成功後整包重抓而不是就地改 —— 送出會連帶改變「哪些訂單還可以勾選」，
+   * 在前端自己推算那份清單遲早會跟伺服器不一致。
+   */
+  async function submitShipping(payload: ShippingPayload) {
+    error.value = null
+
+    try {
+      const result = await $fetch<{ request: ShippingRequest }>('/api/market/shipping', {
+        method: 'POST',
+        body: payload
+      })
+
+      await fetchShipping()
+
+      return result.request
+    } catch (err) {
+      error.value = readError(err)
+      throw err
+    }
+  }
+
+  async function cancelShipping(requestId: string) {
+    error.value = null
+
+    try {
+      await $fetch(`/api/market/shipping/${requestId}`, { method: 'DELETE' })
+      await fetchShipping()
+    } catch (err) {
+      error.value = readError(err)
+      throw err
+    }
+  }
+
   return {
     markets,
     marketsLoading,
@@ -371,6 +468,7 @@ export const useMarketStore = defineStore('market', () => {
     myOrders,
     myFollows,
     myWaitlist,
+    shipping,
     error,
     fetchMarkets,
     fetchMarket,
@@ -383,6 +481,9 @@ export const useMarketStore = defineStore('market', () => {
     submitPayment,
     fetchMyOrders,
     fetchMyFollows,
-    fetchMyWaitlist
+    fetchMyWaitlist,
+    fetchShipping,
+    submitShipping,
+    cancelShipping
   }
 })
