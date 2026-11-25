@@ -98,3 +98,43 @@ describe('LandingHero 的圖片來源', () => {
     expect(html).toContain('random-1.avif')
   })
 })
+
+/**
+ * 市集入口的位置（「logo 下面就是市集」）。
+ *
+ * 位置本身就是需求，所以用 DOM 順序鎖住：卡片必須在 logo 之後、
+ * 而且仍然在 headline 這一塊裡面，不能被改回「整個 Hero 之後」。
+ */
+describe('LandingHero 的 afterLogo 插槽', () => {
+  it('插槽內容渲染在 logo 正下方', async () => {
+    resources = []
+
+    const wrapper = await mountSuspended(LandingHero, {
+      props: { page },
+      slots: { afterLogo: () => h('div', { 'data-test': 'market-slot' }, '線上市集') }
+    })
+
+    const html = wrapper.html()
+    const logoAt = html.indexOf('My profile picture')
+    const slotAt = html.indexOf('data-test="market-slot"')
+
+    expect(logoAt).toBeGreaterThan(-1)
+    expect(slotAt).toBeGreaterThan(-1)
+    expect(logoAt).toBeLessThan(slotAt)
+
+    // 直向堆疊：logo 一列、卡片一列，而不是擠在同一列
+    const headline = wrapper.find('.flex-col')
+
+    expect(headline.exists()).toBe(true)
+    expect(headline.find('[data-test="market-slot"]').exists()).toBe(true)
+  })
+
+  it('沒有傳插槽時版型維持原本的單列置中', async () => {
+    resources = []
+
+    const wrapper = await mountSuspended(LandingHero, { props: { page } })
+
+    expect(wrapper.html()).toContain('flex items-center justify-center')
+    expect(wrapper.html()).not.toContain('flex-col items-center justify-center')
+  })
+})

@@ -41,7 +41,11 @@ const image = computed(() => featured.value?.coverImage || props.fallbackImage |
 </script>
 
 <template>
-  <section class="py-16 sm:py-20">
+  <!--
+    寬度與左右對齊由這裡決定：卡片現在長在 Hero 的 logo 下方，
+    外層是置中的 text-center 版型，所以要自己把文字拉回靠左。
+  -->
+  <section class="mx-auto w-full max-w-2xl text-left">
     <NuxtLink
       :to="target"
       class="group relative block overflow-hidden rounded-2xl border border-primary-200/70 bg-primary-50/40 transition-colors hover:border-primary-300 dark:border-primary-500/20 dark:bg-primary-500/5"

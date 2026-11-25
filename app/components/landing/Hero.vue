@@ -8,6 +8,25 @@ const props = defineProps<{
   page: IndexCollectionItem
 }>()
 
+/**
+ * 市集入口由首頁用具名插槽傳進來，渲染在 logo 正下方。
+ *
+ * 不在 Hero 裡直接引用 MarketEntry：Hero 是版型元件，不該知道市集的存在。
+ * 沒有傳插槽時（例如測試單獨掛載）行為與原本完全一致。
+ */
+const slots = defineSlots<{
+  afterLogo?: () => unknown
+}>()
+
+/**
+ * 有卡片要放在 logo 下面時，headline 要從「一列置中」改成「直向堆疊」。
+ * 下方的間距交給 UPageHero 自己的 mb-4 與 container 的 gap，不另外加，
+ * 否則 content/index.yml 沒有 title/description 的現況下會多出一大塊空白。
+ */
+const headlineClass = computed(() => slots.afterLogo
+  ? 'flex flex-col items-center justify-center gap-10 sm:gap-12'
+  : 'flex items-center justify-center')
+
 const cloudinaryStore = useCloudinaryStore()
 
 // 在組件掛載時獲取圖片
@@ -37,7 +56,7 @@ const heroImages = computed(() => (
 <template>
   <UPageHero
     :ui="{
-      headline: 'flex items-center justify-center',
+      headline: headlineClass,
       title: 'text-shadow-md max-w-lg mx-auto',
       links: 'flex-col justify-center items-center'
     }"
@@ -69,6 +88,8 @@ const heroImages = computed(() => (
           preload
         />
       </Motion>
+
+      <slot name="afterLogo" />
     </template>
 
     <template #title>
