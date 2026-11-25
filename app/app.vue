@@ -63,6 +63,11 @@ const [{ data: navigation }, { data: files }] = await Promise.all([
 
 <template>
   <UApp>
+    <!--
+      換頁要等頁面自己的資料抓完才會渲染（Nuxt 會把舊畫面留在原地），
+      沒有這條進度條的話，按下去到畫面更新之間完全沒有任何回饋。
+    -->
+    <NuxtLoadingIndicator color="var(--color-brand-500)" />
     <NuxtLayout>
       <UMain class="relative">
         <NuxtPage />

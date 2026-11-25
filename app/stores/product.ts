@@ -22,18 +22,16 @@ export const useProductStore = defineStore('product', () => {
         loading.value = true
         error.value = null
         try {
-            // 1. Fetch data from Google Sheet
-            const sheetData = await $fetch<any[]>('/api/getSheet', {
-                query: { range }
-            })
-
-            // 2. Fetch images from Cloudinary
-            await cloudinaryStore.fetchImages()
+            // 1 & 2. 試算表與 Cloudinary 沒有先後關係，序列跑等於把兩段延遲相加
+            const [sheetData] = await Promise.all([
+                $fetch<any[]>('/api/getSheet', { query: { range } }),
+                cloudinaryStore.fetchImages()
+            ])
 
             // 3. Transform raw sheet data (2D array) to Product objects
             if (!sheetData || sheetData.length === 0) {
                 products.value = []
-                return
+                return products.value
             }
 
             const headers = sheetData[0] // First row is headers
@@ -71,6 +69,10 @@ export const useProductStore = defineStore('product', () => {
         } finally {
             loading.value = false
         }
+
+        // 回傳結果而不是只寫進 store，呼叫端包 useAsyncData 時才有 data 可用，
+        // SSR payload 也才帶得到這份清單。
+        return products.value
     }
 
     return {

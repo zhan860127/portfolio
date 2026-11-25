@@ -4,7 +4,13 @@ import { useProductStore } from '~/stores/product';
 
 const productStore = useProductStore()
 
-await productStore.fetchProducts('product')
+// 包進 useAsyncData，讓這次抓取跟著路由的生命週期走：進 SSR payload、
+// 重複呼叫會去重、離開頁面時取消，而不是在 setup 裡裸奔一個 await。
+//
+// 注意這樣「不會」讓換頁完全不發請求 —— Nuxt 預設仍會在每次導航時重跑 handler。
+// 真正把那 300～360ms 拿掉的是 /api/getSheet 的伺服器端快取。
+// 想連請求都省掉的話要自己給 getCachedData，代價是整個 SPA 連線期間都不會更新。
+await useAsyncData('products-product', () => productStore.fetchProducts('product'))
 
 useHead({
   title: 'Products',
