@@ -26,6 +26,29 @@ useSeoMeta({
   description: () => marketStore.currentMarket?.description ?? '清嶼手記線上市集'
 })
 
+/* ---------------------------------------------------------------- */
+/*  分類篩選                                                         */
+/* ---------------------------------------------------------------- */
+
+/**
+ * 目前選的分類以網址為準（?c=senya），不另外存一份 state。
+ *
+ * 這樣「只看森野」這個畫面才貼得給朋友，按上一頁也會回到上一個分類
+ * 而不是直接離開市集。不認得的代稱（例如分類改名後的舊連結）
+ * 會被收斂成「全部」，不報錯也不給一片空白。
+ */
+const activeCategory = computed(() => normalizeCategoryQuery(
+  route.query.c,
+  marketStore.categories.map(category => category.slug),
+  marketStore.uncategorizedCount > 0
+))
+
+const visibleProducts = computed(() => filterByCategory(marketStore.products, activeCategory.value))
+
+function selectCategory(value: string | null) {
+  router.push({ query: { ...route.query, c: value ?? undefined } })
+}
+
 // 登入後把未登入期間暫存的追蹤搬進帳號（需求 7）
 onMounted(async () => {
   if (!loggedIn.value) {
@@ -175,11 +198,15 @@ function goBack() {
     <MarketStoryViewer
       v-else-if="marketStore.currentMarket"
       :market="marketStore.currentMarket"
-      :products="marketStore.products"
+      :products="visibleProducts"
+      :categories="marketStore.categories"
+      :active-category="activeCategory"
+      :uncategorized-count="marketStore.uncategorizedCount"
       @back="goBack"
       @follow="onFollow"
       @order="onOrder"
       @waitlist="onWaitlist"
+      @select-category="selectCategory"
     />
 
     <!-- 下單前確認：金額與訂金必須在送出前就讓人看清楚 -->

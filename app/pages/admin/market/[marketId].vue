@@ -1,9 +1,18 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'admin' })
 
+interface AdminCategory {
+  id: string
+  name: string
+  slug: string
+  productCount: number
+}
+
 interface AdminProduct {
   id: string
   code: string | null
+  categoryId: string | null
+  category: { id: string, name: string, slug: string } | null
   name: string
   description: string | null
   price: number
@@ -40,7 +49,26 @@ const marketId = computed(() => String(route.params.marketId))
 const { data, refresh } = await useFetch<{
   market: { id: string, title: string, waitlistWindowHours: number }
   products: AdminProduct[]
+  categories: AdminCategory[]
+  /** 每個分類「下一件該叫什麼」，例如森野 01、02 之後給森野 03 */
+  nextNames: Record<string, string>
 }>(() => `/api/admin/market/markets/${marketId.value}/products`)
+
+/**
+ * reka-ui 的 SelectItem 不接受空字串當 value，所以「未分類」要有自己的代號，
+ * 在送出前再轉回 null。（直接用 '' 會在打開下拉時整個炸掉。）
+ */
+const UNCATEGORIZED = '__none__'
+
+const categories = computed(() => data.value?.categories ?? [])
+
+const categoryOptions = computed(() => [
+  { label: '未分類', value: UNCATEGORIZED },
+  ...categories.value.map(category => ({
+    label: `${category.name}（${category.productCount}）`,
+    value: category.id
+  }))
+])
 
 useSeoMeta({ title: () => `${data.value?.market.title ?? '活動'}｜商品管理`, robots: 'noindex' })
 
@@ -64,6 +92,7 @@ const formError = ref<string | null>(null)
 function emptyProductForm() {
   return {
     code: '',
+    categoryId: UNCATEGORIZED,
     name: '',
     description: '',
     price: 0,
@@ -91,6 +120,7 @@ function openCreate() {
 function openEdit(product: AdminProduct) {
   Object.assign(form, {
     code: product.code ?? '',
+    categoryId: product.categoryId ?? UNCATEGORIZED,
     name: product.name,
     description: product.description ?? '',
     price: product.price,
@@ -110,9 +140,76 @@ function openEdit(product: AdminProduct) {
   formError.value = null
 }
 
+/**
+ * 新增作品時選了分類，就把名稱預填成「森野 03」這種下一個流水號。
+ * 只在名稱還空著時才填，不覆蓋管理員已經打好的字。
+ */
+watch(() => form.categoryId, (categoryId) => {
+  if (!creating.value || form.name.trim() || categoryId === UNCATEGORIZED) {
+    return
+  }
+
+  const suggestion = data.value?.nextNames?.[categoryId]
+
+  if (suggestion) {
+    form.name = suggestion
+  }
+})
+
 function close() {
   editingId.value = null
   creating.value = false
+}
+
+/* ------------------------------ 批次指定分類 ------------------------------ */
+
+const selectedIds = ref<string[]>([])
+const batchCategoryId = ref<string>(UNCATEGORIZED)
+const batching = ref(false)
+
+function toggleSelected(productId: string) {
+  selectedIds.value = selectedIds.value.includes(productId)
+    ? selectedIds.value.filter(id => id !== productId)
+    : [...selectedIds.value, productId]
+}
+
+function toggleAll() {
+  const all = data.value?.products.map(product => product.id) ?? []
+
+  selectedIds.value = selectedIds.value.length === all.length ? [] : all
+}
+
+/**
+ * 50 件作品逐一點進去改是 50 次往返，實務上改到第 10 件就會放棄，
+ * 然後前台出現一個分了一半的篩選器。
+ */
+async function assignCategory() {
+  if (selectedIds.value.length === 0) {
+    return
+  }
+
+  batching.value = true
+
+  try {
+    const result = await $fetch<{ updated: number }>('/api/admin/market/products/assign-category', {
+      method: 'POST',
+      body: {
+        productIds: selectedIds.value,
+        categoryId: batchCategoryId.value === UNCATEGORIZED ? null : batchCategoryId.value
+      }
+    })
+
+    await refresh()
+    selectedIds.value = []
+    toast.add({ title: `已指定 ${result.updated} 件作品的分類`, color: 'success' })
+  } catch (error) {
+    toast.add({
+      title: (error as { data?: { statusMessage?: string } })?.data?.statusMessage ?? '指定失敗',
+      color: 'error'
+    })
+  } finally {
+    batching.value = false
+  }
 }
 
 async function save() {
@@ -122,6 +219,7 @@ async function save() {
   const payload: Record<string, unknown> = {
     marketId: marketId.value,
     code: form.code,
+    categoryId: form.categoryId === UNCATEGORIZED ? null : form.categoryId,
     name: form.name,
     description: form.description,
     price: Number(form.price),
@@ -288,15 +386,66 @@ const statusTone: Record<string, string> = {
       這場活動還沒有作品。
     </p>
 
+    <!--
+      批次指定分類。50 件逐一點進去改是 50 次往返，
+      沒有這一條，分類功能在後台就是「改到第 10 件就放棄」。
+    -->
+    <div
+      v-if="data && data.products.length > 0"
+      class="mb-3 flex flex-wrap items-center gap-2"
+    >
+      <UButton
+        size="xs"
+        color="neutral"
+        variant="ghost"
+        @click="toggleAll"
+      >
+        {{ selectedIds.length === data.products.length ? '取消全選' : '全選' }}
+      </UButton>
+
+      <template v-if="selectedIds.length > 0">
+        <span class="text-sm text-neutral-500">已選 {{ selectedIds.length }} 件</span>
+        <USelect
+          v-model="batchCategoryId"
+          :items="categoryOptions"
+          class="w-44"
+        />
+        <UButton
+          size="xs"
+          color="primary"
+          :loading="batching"
+          @click="assignCategory"
+        >
+          指定分類
+        </UButton>
+        <UButton
+          size="xs"
+          color="neutral"
+          variant="ghost"
+          @click="selectedIds = []"
+        >
+          取消選取
+        </UButton>
+      </template>
+    </div>
+
     <ul
-      v-else
+      v-if="data && data.products.length > 0"
       class="space-y-3"
     >
       <li
         v-for="product in data.products"
         :key="product.id"
         class="flex flex-wrap items-center gap-4 rounded-xl border border-neutral-200 p-4 dark:border-neutral-800"
+        :class="selectedIds.includes(product.id) ? 'border-primary-300 bg-primary-50/40 dark:border-primary-500/30 dark:bg-primary-500/5' : ''"
       >
+        <input
+          type="checkbox"
+          class="size-4 shrink-0 accent-primary-500"
+          :checked="selectedIds.includes(product.id)"
+          :aria-label="`選取 ${product.name}`"
+          @change="toggleSelected(product.id)"
+        >
         <img
           v-if="product.images[0]?.src"
           :src="product.images[0].src"
@@ -317,6 +466,12 @@ const statusTone: Record<string, string> = {
             </span>
           </div>
           <p class="mt-0.5 text-xs text-neutral-500">
+            <span
+              class="mr-1 rounded px-1.5 py-0.5"
+              :class="product.category
+                ? 'bg-primary-100 text-primary-800 dark:bg-primary-500/15 dark:text-primary-300'
+                : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'"
+            >{{ product.category?.name ?? '未分類' }}</span>
             <span v-if="product.code">{{ product.code }}．</span>
             NT$ {{ product.price.toLocaleString('zh-TW') }}．訂金 NT$ {{ product.deposit.toLocaleString('zh-TW') }}．
             排序 {{ product.sortOrder }}
@@ -383,6 +538,17 @@ const statusTone: Record<string, string> = {
               />
             </UFormField>
           </div>
+
+          <UFormField
+            label="分類"
+            help="例如「森野」。新增時選了分類、名稱還空著的話會幫你填下一個流水號"
+          >
+            <USelect
+              v-model="form.categoryId"
+              :items="categoryOptions"
+              class="w-full"
+            />
+          </UFormField>
 
           <div class="grid grid-cols-3 gap-3">
             <UFormField

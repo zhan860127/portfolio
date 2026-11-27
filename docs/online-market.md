@@ -44,7 +44,10 @@ Migration：`server/database/migrations/0001_online_market.sql`（純新增，�
 
 後續：`0002_shipping_requests.sql` 新增寄貨單（一個 enum、一張表，
 以及 `market_orders` 一個可為 NULL 的 `shipping_request_id`）。
-**已套用在本機開發資料庫；Vercel 上的 Neon 還沒跑。**
+`0003_market_categories.sql` 新增作品分類（一張表，
+以及 `market_products` 一個可為 NULL 的 `category_id`）。
+
+0002 已套用在本機與 Neon；**0003 只套用在本機，Vercel 上的 Neon 還沒跑。**
 
 | 表 | 用途 |
 |---|---|
@@ -54,6 +57,7 @@ Migration：`server/database/migrations/0001_online_market.sql`（純新增，�
 | `payment_submissions` | 匯款資料：末五碼、金額、時間、備註 |
 | `product_follows` | 追蹤 |
 | `waitlist_entries` | 候補：狀態、通知時間、優先購買窗口截止時間 |
+| `market_categories` | 作品分類（品項）：例如「森野」底下有森野 01、森野 02 |
 | `shipping_requests` | 寄貨單：7-ELEVEN 貨到付款的收件資訊與金額快照（見 `docs/shipping.md`） |
 | `audit_logs` | 管理員操作紀錄 |
 
@@ -493,10 +497,12 @@ production  ep-sparkling-recipe-bi4af4ru...ap-southeast-1.aws.neon.tech/neondb
 ```
 server/database/migrations/0001_online_market.sql
 server/database/migrations/0002_shipping_requests.sql
+server/database/migrations/0003_market_categories.sql
 server/utils/market.ts            純邏輯：狀態推導、權限判斷、序列化
 server/utils/marketData.ts        viewer context 組裝（避免 N+1）
 server/utils/marketOrders.ts      搶保留權（可測試的併發核心）
 server/utils/shipping.ts          寄貨單的純邏輯：金額、收件資訊驗證、狀態轉換
+server/utils/categories.ts        分類的純邏輯：名稱正規化、代稱、下一個流水號
 server/utils/admin.ts             requireAdminUser
 server/utils/audit.ts             操作紀錄
 server/api/market/**              前台 API（活動、商品、訂單、追蹤、候補）
@@ -514,7 +520,8 @@ app/components/market/            MarketEntry / StoryViewer / ZoomImage /
                                   ShippingForm
 app/pages/market/                 index.vue、[marketId].vue
 app/pages/me.vue
-app/pages/admin/market/           index.vue、[marketId].vue、orders.vue、shipping.vue
+app/pages/admin/market/           index.vue、[marketId].vue、orders.vue、shipping.vue、
+                                  categories.vue
 
 tests/unit/、tests/nuxt/、tests/db/
                                   （含 shipping-rules / shipping-form / db 的 shipping）

@@ -1,5 +1,5 @@
 import { asc, eq } from 'drizzle-orm'
-import { marketProducts, markets } from '../../../database/schema'
+import { marketCategories, marketProducts, markets } from '../../../database/schema'
 
 /**
  * 單一活動 + 全部商品（含這位使用者的追蹤 / 訂單 / 候補狀態）。
@@ -31,8 +31,33 @@ export default defineEventHandler(async (event) => {
   const userId = await optionalUserId(event)
   const viewer = await buildViewerContext(products.map(product => product.id), userId, now)
 
+  // 分類一次撈完再在記憶體裡配對，不要每件商品各查一次
+  const categories = await db
+    .select()
+    .from(marketCategories)
+    .orderBy(asc(marketCategories.sortOrder), asc(marketCategories.name))
+
+  const categoryById = new Map(categories.map(category => [category.id, category]))
+
   return {
     market: toApiMarket(market, products.length, now),
-    products: products.map(product => toApiMarketProduct(product, market, viewer, now))
+    /**
+     * 只回傳「這場市集真的有作品」的分類，而且帶件數。
+     * 空分類的膠囊點下去是一片空白，對客人只有干擾。
+     */
+    categories: categories
+      .map(category => toApiCategory(
+        category,
+        products.filter(product => product.categoryId === category.id).length
+      ))
+      .filter(category => category.productCount > 0),
+    uncategorizedCount: products.filter(product => product.categoryId === null).length,
+    products: products.map(product => toApiMarketProduct(
+      product,
+      market,
+      viewer,
+      now,
+      product.categoryId ? categoryById.get(product.categoryId) ?? null : null
+    ))
   }
 })

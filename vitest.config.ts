@@ -33,7 +33,14 @@ export default defineConfig({
         test: {
           name: 'nuxt',
           environment: 'nuxt',
-          include: ['tests/nuxt/**/*.spec.ts']
+          include: ['tests/nuxt/**/*.spec.ts'],
+          /*
+           * 每個測試檔都會在自己的 worker 裡啟動一次 Nuxt runtime。
+           * 專案長大之後那段啟動已經會超過 vitest 預設的 10 秒，
+           * 症狀是 HookTimeoutError 而且整個檔案被標成 skipped ——
+           * 看起來像壞掉，其實只是還沒開完。
+           */
+          hookTimeout: 60000
         }
       })
     ]

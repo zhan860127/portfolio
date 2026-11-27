@@ -10,7 +10,11 @@ import type { MarketProduct, MarketSummary } from '~/stores/market'
  */
 const props = defineProps<{
   market: MarketSummary
+  /** 已經依分類篩選過的清單；分類的 UI 在快照列表裡 */
   products: MarketProduct[]
+  categories?: Array<{ id: string, name: string, slug: string, productCount: number }>
+  activeCategory?: string | null
+  uncategorizedCount?: number
 }>()
 
 const emit = defineEmits<{
@@ -18,6 +22,7 @@ const emit = defineEmits<{
   follow: [string]
   order: [string]
   waitlist: [string]
+  selectCategory: [string | null]
 }>()
 
 const marketStore = useMarketStore()
@@ -50,6 +55,22 @@ const preloadSrcs = computed(() =>
     .map(position => props.products[position]?.images[0]?.src)
     .filter((src): src is string => Boolean(src))
 )
+
+/**
+ * 切換分類時 products 會換成另一批，index 必須跟著搬。
+ *
+ * 目前這件如果還在新清單裡就停在它身上（從「全部」切到它自己的分類時，
+ * 畫面不該跳走）；不在就回到第一件。不處理的話 index 會指到不存在的位置，
+ * 畫面直接變成空白。
+ */
+watch(() => props.products.map(product => product.id), (nextIds, previousIds) => {
+  const previousId = previousIds?.[index.value]
+  const nextIndex = previousId ? nextIds.indexOf(previousId) : -1
+
+  index.value = nextIndex >= 0 ? nextIndex : 0
+  viewed.value = new Set([index.value])
+  zoomRef.value?.reset()
+})
 
 /** 切換時先淡出再淡入。prefers-reduced-motion 由 .market-animated 統一關掉動畫 */
 const switching = ref(false)
@@ -598,7 +619,11 @@ function onPrimaryAction() {
       :products="props.products"
       :current-index="index"
       :viewed="viewed"
+      :categories="props.categories"
+      :active-category="props.activeCategory"
+      :uncategorized-count="props.uncategorizedCount"
       @select="goTo($event); sheetOpen = false"
+      @select-category="emit('selectCategory', $event)"
       @close="sheetOpen = false"
     />
 

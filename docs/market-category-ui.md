@@ -1,4 +1,19 @@
-# 50 件商品怎麼分類 — UI 規劃
+# 50 件商品怎麼分類 — 規劃與實作狀態
+
+> **狀態（2026-11）**：五個階段都做完了。
+>
+> | 階段 | 內容 | 狀態 |
+> |---|---|---|
+> | 1 | `market_categories` 表 + `market_products.category_id`（migration 0003） | ✅ |
+> | 2 | 後台分類管理頁（新增／改名／刪除／排序） | ✅ |
+> | 3 | 商品編輯的分類下拉 + 批次指定分類 | ✅ |
+> | 4 | 前台分類膠囊列 + 網址同步（`?c=senya`） | ✅ |
+> | 5 | 快照列表由單列改成網格 | ✅ |
+>
+> 實際的用法是「森野」底下有森野 01、森野 02 —— 同一個系列、
+> 各自獨立的作品，各有自己的編號、價格與狀態。
+>
+> 尚未處理：**Vercel 上的 Neon 還沒跑 migration 0003**。
 
 市集現在是為「十幾件」設計的。商品數量一旦來到 50 件，
 瀏覽方式會先壞掉，分類才有意義 —— 所以這份規劃從「現在會卡在哪」開始。
@@ -58,6 +73,9 @@
 - chip 列本身可以水平捲動，但**分類控制在 8 個以內就不太需要滑**。
 
 ### 3.2 網格
+
+實作出來是每列 3 格（sm 以上 4 格），最高佔畫面 46%，
+上方仍然看得到目前瀏覽的那一件（需求 5.3）。
 
 - 每列 3 件（375px 手機上每格約 108px，跟現在的縮圖差不多大）。
 - 一樣保留「已瀏覽」的淡化、「目前這件」的品牌色外框。
@@ -126,28 +144,41 @@
 ## 5. 資料怎麼存
 
 ```sql
-ALTER TABLE market_products ADD COLUMN category text;
-CREATE INDEX market_products_market_category_idx
-  ON market_products (market_id, category);
+CREATE TABLE market_categories (
+  id uuid PRIMARY KEY, name text NOT NULL, slug text NOT NULL,
+  description text, sort_order integer NOT NULL DEFAULT 0, ...
+);
+CREATE UNIQUE INDEX market_categories_name_idx ON market_categories (name);
+CREATE UNIQUE INDEX market_categories_slug_idx ON market_categories (slug);
+
+ALTER TABLE market_products ADD COLUMN category_id uuid
+  REFERENCES market_categories(id) ON DELETE SET NULL;
 ```
 
-- **用 `text` 不用 pgEnum。** enum 每加一個分類就要一次 migration；
-  清嶼之後想加「香器」的時候不該需要我。改用一份共用常數清單，
-  在 API 邊界擋掉不在清單裡的值，前後台共用同一份，就不會各自長歪。
+`ON DELETE SET NULL` 是刻意的：刪掉分類時底下的作品只會回到未分類，
+不會跟著消失。後台刪除前會先告訴你這會影響幾件。
+
+- **做成一張表，不是程式裡的固定清單。**（原本規劃寫的是共用常數清單，
+  實作時改掉了 —— 清嶼要能自己新增「森野」，不該每次都要改程式重新部署。）
+  重點不變：商品是從既有清單裡挑，不是每件各自自由輸入，
+  所以「杯」「杯子」「茶杯」不會變成三個分類。
+- **名稱與代稱都有唯一索引。** 這是分類長歪的主要原因：
+  沒擋的話「森野」「森野 」會變成兩個分類，件數再也加不起來。
 - **可以是 NULL。** NULL = 未分類，前台顯示成「其他」。
   不要給一個 `'other'` 預設值 —— 那會讓「我還沒分」跟「我決定它是其他」分不出來。
 - 純新增欄位，既有資料與既有查詢完全不受影響。
 
-### 分類清單的建議（你再改）
+### 分類怎麼取名
 
-以陶藝作品的「用途」分，不以技法分 —— 客人是照「我想要一個杯子」找東西的：
+分類現在完全由你在後台自訂，可以是系列名（森野），也可以是用途（杯、碗、盤皿）。
+兩種混用也不會壞，只是客人看到的那排膠囊會比較難預期。
 
-```
-杯 / 碗 / 盤皿 / 瓶罐 / 花器 / 香器 / 擺件 / 其他
-```
-
-技法（手捏、盤築、柴燒釉）已經在規格欄位裡，不要再變成分類，
+一個小建議：技法（手捏、盤築、柴燒釉）已經在規格欄位裡，不要再變成分類，
 否則同一件作品會讓人覺得「應該出現在兩個地方」。
+
+**新增作品時的流水號**：選了分類而名稱還空著的話，後台會幫你填下一個號碼
+（森野 01、森野 02 之後給森野 03）。跨活動統計，所以上一場做到 02、
+這一場會接著 03，而不是從頭來。只是預填值，可以直接改掉。
 
 ---
 
@@ -173,9 +204,12 @@ CREATE INDEX market_products_market_category_idx
 | 2 | 後台單筆下拉 | 小 |
 | 3 | 後台批次指定 | 中（勾選狀態與批次 API） |
 | 4 | 前台 chip 列 + 網址同步 | 中 |
-| 5 | 快照列表單列改網格 | 中（手勢要重測，列表現在是水平捲動，改網格後是垂直） |
+| 5 | 快照列表單列改網格 | ✅ 完成 |
 
-**階段 5 是這裡面最容易出事的一塊** —— 市集所有手勢都收斂在
-`MarketStoryViewer`，列表從水平改垂直會動到 `resolveGestureIntent` 的裁決，
-`tests/unit/gestures.spec.ts` 要一起改。建議 1→2→3 先做（你先把 50 件分完），
-4→5 再一起上，不然前台會出現一個分了類卻還是很難滑的列表。
+**關於階段 5 原本擔心的手勢衝突**：實際做下去發現不需要改
+`resolveGestureIntent`。快照列表是 `Teleport` 到 body 的，不是 viewer 手勢層的
+子節點，它自己的捲動（`touch-action: pan-y`）根本不會冒泡過去。
+`tests/unit/gestures.spec.ts` 一個字都沒動。
+
+唯一的行為差異：在網格內往下滑現在是捲動網格，不會關閉列表 ——
+關閉仍然靠頂部那條把手，或點列表以外的區域。

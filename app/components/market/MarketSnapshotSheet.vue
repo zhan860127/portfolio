@@ -10,12 +10,59 @@ import type { MarketProduct } from '~/stores/market'
  */
 const props = defineProps<{
   open: boolean
+  /** 已經依分類篩選過的清單 */
   products: MarketProduct[]
   currentIndex: number
   viewed: Set<number>
+  categories?: Array<{ id: string, name: string, slug: string, productCount: number }>
+  /** 目前選的分類代稱；OTHER_CATEGORY 代表「其他（未分類）」，null 代表全部 */
+  activeCategory?: string | null
+  uncategorizedCount?: number
 }>()
 
-const emit = defineEmits<{ select: [number], close: [] }>()
+const emit = defineEmits<{
+  select: [number]
+  close: []
+  selectCategory: [string | null]
+}>()
+
+const categories = computed(() => props.categories ?? [])
+const uncategorizedCount = computed(() => props.uncategorizedCount ?? 0)
+
+/**
+ * 分類膠囊。
+ *
+ * 「全部」永遠排第一而且預設選它 —— 客人不該為了開始看東西先做一次選擇。
+ * 每顆都帶件數：「杯 12」比「杯」有用太多，客人才知道點進去值不值得。
+ */
+const chips = computed(() => {
+  const total = categories.value.reduce((sum, category) => sum + category.productCount, 0)
+    + uncategorizedCount.value
+
+  const items = [
+    { key: 'all', label: '全部', count: total, value: null as string | null },
+    ...categories.value.map(category => ({
+      key: category.slug,
+      label: category.name,
+      count: category.productCount,
+      value: category.slug as string | null
+    }))
+  ]
+
+  // 未分類的作品要看得見，不能因為沒分類就從畫面上消失
+  if (uncategorizedCount.value > 0) {
+    items.push({
+      key: OTHER_CATEGORY,
+      label: '其他',
+      count: uncategorizedCount.value,
+      value: OTHER_CATEGORY as string | null
+    })
+  }
+
+  return items
+})
+
+const activeKey = computed(() => props.activeCategory ?? 'all')
 
 const scroller = ref<HTMLElement | null>(null)
 const itemRefs = ref<HTMLElement[]>([])
@@ -129,7 +176,12 @@ function onHandleUp() {
 
             <header class="flex items-center justify-between px-5 pb-3">
               <h2 class="text-sm tracking-wide text-neutral-500">
-                本次作品 {{ props.products.length }} 件
+                <template v-if="activeKey === 'all'">
+                  本次作品 {{ props.products.length }} 件
+                </template>
+                <template v-else>
+                  {{ chips.find(chip => chip.key === activeKey)?.label }}．{{ props.products.length }} 件
+                </template>
               </h2>
               <UButton
                 icon="i-lucide-x"
@@ -141,19 +193,55 @@ function onHandleUp() {
               />
             </header>
 
-            <!-- touch-action: pan-x 讓這一列走瀏覽器原生水平捲動，
-                 事件不會冒泡到 viewer 的手勢層，自然不會誤切商品 -->
+            <!--
+              分類膠囊。touch-action: pan-x 讓這一列走瀏覽器原生水平捲動，
+              事件不會冒泡到 viewer 的手勢層，自然不會誤切商品。
+            -->
+            <div
+              v-if="chips.length > 1"
+              class="flex gap-2 overflow-x-auto px-5 pb-3"
+              style="touch-action: pan-x; scrollbar-width: none"
+              role="group"
+              aria-label="依分類篩選"
+            >
+              <button
+                v-for="chip in chips"
+                :key="chip.key"
+                type="button"
+                class="shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                :class="chip.key === activeKey
+                  ? 'border-primary-500 bg-primary-500 text-white'
+                  : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'"
+                :aria-pressed="chip.key === activeKey"
+                @click="emit('selectCategory', chip.key === activeKey ? null : chip.value)"
+              >
+                {{ chip.label }}
+                <span class="ml-1 tabular-nums opacity-70">{{ chip.count }}</span>
+              </button>
+            </div>
+
+            <!--
+              網格而不是單列：50 件排成一列是 6,200px，375px 的手機上要滑 17 個螢幕。
+              touch-action: pan-y 讓它走原生的垂直捲動。
+            -->
             <div
               ref="scroller"
-              class="flex gap-3 overflow-x-auto px-5 pb-4 snap-x snap-mandatory"
-              style="touch-action: pan-x; scrollbar-width: none"
+              class="grid max-h-[46vh] grid-cols-3 gap-3 overflow-y-auto px-5 pb-4 sm:grid-cols-4"
+              style="touch-action: pan-y; scrollbar-width: none"
             >
+              <p
+                v-if="props.products.length === 0"
+                class="col-span-full py-10 text-center text-sm text-neutral-500"
+              >
+                這個分類目前沒有作品。
+              </p>
+
               <button
                 v-for="(product, index) in props.products"
                 :key="product.id"
                 :ref="el => { if (el) itemRefs[index] = el as HTMLElement }"
                 type="button"
-                class="shrink-0 w-28 snap-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xl"
+                class="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 rounded-xl"
                 :aria-current="index === props.currentIndex ? 'true' : undefined"
                 @click="onSelect(index)"
               >

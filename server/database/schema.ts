@@ -138,11 +138,48 @@ export const markets = pgTable('markets', {
   index('markets_status_starts_at_idx').on(table.status, table.startsAt)
 ])
 
+/**
+ * 作品分類（品項）。
+ *
+ * 例如「森野」底下有森野 01、森野 02 —— 同一個系列、各自獨立的作品，
+ * 各有自己的編號、價格與狀態。分類是跨活動共用的：
+ * 下一場市集再做一批森野，不必重建一次分類。
+ *
+ * 一件作品只屬於一個分類。不做多標籤，也不做第二層 ——
+ * 多標籤會讓各分類件數加起來不等於總數，客人也會在兩個分類看到同一件作品。
+ */
+export const marketCategories = pgTable('market_categories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  /** 網址用的代稱（?c=senya）。沒填的話由伺服器產生。 */
+  slug: text('slug').notNull(),
+  description: text('description'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+}, table => [
+  uniqueIndex('market_categories_slug_idx').on(table.slug),
+  /**
+   * 名稱也唯一。這是分類會長歪的主要原因：
+   * 沒擋的話「森野」「森野系列」「森野 」會變成三個分類，而件數再也加不起來。
+   */
+  uniqueIndex('market_categories_name_idx').on(table.name),
+  index('market_categories_sort_idx').on(table.sortOrder)
+])
+
 export const marketProducts = pgTable('market_products', {
   id: uuid('id').primaryKey().defaultRandom(),
   marketId: uuid('market_id').notNull().references(() => markets.id, { onDelete: 'cascade' }),
   /** 對外顯示的商品編號（例如 TI-2026-03），與 uuid 分開，方便客服溝通 */
   code: text('code'),
+  /**
+   * 所屬分類。NULL = 尚未分類（前台歸進「其他」）。
+   *
+   * 刻意可為 NULL 而不是給一個「其他」的預設分類：
+   * 「我還沒分」跟「我決定它是其他」是兩件事，混在一起你就不知道整理完了沒有。
+   * 分類被刪除時這裡會回到 NULL，作品本身不受影響。
+   */
+  categoryId: uuid('category_id').references(() => marketCategories.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   description: text('description'),
   priceCents: integer('price_cents').notNull(),
@@ -324,8 +361,13 @@ export const marketsRelations = relations(markets, ({ many }) => ({
   products: many(marketProducts)
 }))
 
+export const marketCategoriesRelations = relations(marketCategories, ({ many }) => ({
+  products: many(marketProducts)
+}))
+
 export const marketProductsRelations = relations(marketProducts, ({ one, many }) => ({
   market: one(markets, { fields: [marketProducts.marketId], references: [markets.id] }),
+  category: one(marketCategories, { fields: [marketProducts.categoryId], references: [marketCategories.id] }),
   follows: many(productFollows),
   waitlist: many(waitlistEntries)
 }))
@@ -364,6 +406,7 @@ export type OrderStatus = (typeof orderStatus.enumValues)[number]
 export type UserRole = (typeof userRole.enumValues)[number]
 
 export type Market = typeof markets.$inferSelect
+export type MarketCategory = typeof marketCategories.$inferSelect
 export type MarketProduct = typeof marketProducts.$inferSelect
 export type MarketOrder = typeof marketOrders.$inferSelect
 export type PaymentSubmission = typeof paymentSubmissions.$inferSelect

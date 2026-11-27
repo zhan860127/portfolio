@@ -9,6 +9,10 @@ export type AuditAction
     | 'product.update'
     | 'product.delete'
     | 'product.reorder'
+    | 'product.set_category'
+    | 'category.create'
+    | 'category.update'
+    | 'category.delete'
     | 'order.confirm_deposit'
     | 'order.confirm_sold'
     | 'order.cancel'
@@ -23,7 +27,7 @@ export type AuditAction
 export interface AuditInput {
   actorId: string | null
   action: AuditAction
-  entityType: 'market' | 'product' | 'order' | 'waitlist' | 'user' | 'shipping'
+  entityType: 'market' | 'product' | 'order' | 'waitlist' | 'user' | 'shipping' | 'category'
   entityId: string
   previousValue?: unknown
   newValue?: unknown

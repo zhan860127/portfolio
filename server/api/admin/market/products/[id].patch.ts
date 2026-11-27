@@ -1,5 +1,5 @@
 import { and, eq, ne } from 'drizzle-orm'
-import { marketOrders, marketProducts } from '../../../../database/schema'
+import { marketCategories, marketOrders, marketProducts } from '../../../../database/schema'
 import type { MarketProductStatus } from '../../../../database/schema'
 
 const PRODUCT_STATUSES: MarketProductStatus[] = ['available', 'reserved', 'sold']
@@ -30,6 +30,27 @@ export default defineEventHandler(async (event) => {
 
   if ('code' in (body ?? {})) {
     patch.code = String(body?.code ?? '').trim() || null
+  }
+
+  // 空字串代表「拿掉分類」，不是「沒有送這個欄位」
+  if ('categoryId' in (body ?? {})) {
+    if (body?.categoryId) {
+      const categoryId = requireUuid(body.categoryId, 'category id')
+
+      const [category] = await db
+        .select({ id: marketCategories.id })
+        .from(marketCategories)
+        .where(eq(marketCategories.id, categoryId))
+        .limit(1)
+
+      if (!category) {
+        throw createError({ statusCode: 404, statusMessage: '找不到這個分類' })
+      }
+
+      patch.categoryId = categoryId
+    } else {
+      patch.categoryId = null
+    }
   }
 
   if ('description' in (body ?? {})) {

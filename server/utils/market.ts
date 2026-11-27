@@ -1,8 +1,11 @@
 // Nitro 會自動注入 createError，但單元測試是在純 Node 環境直接 import 這個檔案，
 // 沒有 Nitro 的 auto-import。明確 import 讓這些規則可以被測試覆蓋。
 import { createError } from 'h3'
+import type { ApiProductCategory } from './categories'
+import { toApiProductCategory } from './categories'
 import type {
   Market,
+  MarketCategory,
   MarketOrder,
   MarketOrderStatus,
   MarketProduct,
@@ -352,6 +355,8 @@ export function toApiMarket(market: Market, productCount: number, now: Date = ne
 export interface ApiMarketProduct {
   id: string
   code: string | null
+  /** 所屬分類（品項）。null = 未分類 */
+  category: ApiProductCategory | null
   name: string
   description: string | null
   price: number
@@ -397,7 +402,9 @@ export function toApiMarketProduct(
   product: MarketProduct,
   market: Market,
   viewer: ViewerContext,
-  now: Date = new Date()
+  now: Date = new Date(),
+  /** 由呼叫端查好後帶進來，避免在序列化裡再打一次 DB（N+1） */
+  category: MarketCategory | null = null
 ): ApiMarketProduct {
   const window = viewer.priorityWindows.get(product.id) ?? { active: false, allowedUserIds: [], expiresAt: null }
   const marketLive = isMarketPurchasable(market, now)
@@ -412,6 +419,7 @@ export function toApiMarketProduct(
   return {
     id: product.id,
     code: product.code,
+    category: toApiProductCategory(category),
     name: product.name,
     description: product.description,
     price: product.priceCents / 100,

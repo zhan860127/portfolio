@@ -20,9 +20,20 @@ export interface MarketSummary {
   depositDueHours: number
 }
 
+export interface MarketCategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  sortOrder: number
+  productCount: number
+}
+
 export interface MarketProduct {
   id: string
   code: string | null
+  /** 所屬分類（品項）。null = 未分類 */
+  category: { id: string, name: string, slug: string } | null
   name: string
   description: string | null
   price: number
@@ -149,6 +160,9 @@ export const useMarketStore = defineStore('market', () => {
 
   const currentMarket = ref<MarketSummary | null>(null)
   const products = ref<MarketProduct[]>([])
+  /** 這場市集實際用到的分類（空分類不會回傳），含件數 */
+  const categories = ref<MarketCategory[]>([])
+  const uncategorizedCount = ref(0)
   const productsLoading = ref(false)
 
   const myOrders = ref<MarketOrder[]>([])
@@ -199,11 +213,16 @@ export const useMarketStore = defineStore('market', () => {
     error.value = null
 
     try {
-      const data = await $fetch<{ market: MarketSummary, products: MarketProduct[] }>(
-        `/api/market/markets/${marketId}`
-      )
+      const data = await $fetch<{
+        market: MarketSummary
+        products: MarketProduct[]
+        categories: MarketCategory[]
+        uncategorizedCount: number
+      }>(`/api/market/markets/${marketId}`)
 
       currentMarket.value = data.market
+      categories.value = data.categories ?? []
+      uncategorizedCount.value = data.uncategorizedCount ?? 0
       products.value = data.products.map(product => ({
         ...product,
         // 未登入期間的追蹤存在瀏覽器，這裡合併回畫面狀態
@@ -464,6 +483,8 @@ export const useMarketStore = defineStore('market', () => {
     marketsLoading,
     currentMarket,
     products,
+    categories,
+    uncategorizedCount,
     productsLoading,
     myOrders,
     myFollows,

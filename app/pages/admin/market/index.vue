@@ -143,6 +143,14 @@ async function togglePublish(market: AdminMarket) {
       </div>
       <div class="flex gap-2">
         <UButton
+          to="/admin/market/categories"
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-tags"
+        >
+          作品分類
+        </UButton>
+        <UButton
           to="/admin/market/orders"
           color="neutral"
           variant="outline"

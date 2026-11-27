@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { marketProducts, markets } from '../../../database/schema'
+import { marketCategories, marketProducts, markets } from '../../../database/schema'
 
 /** 新增市集商品。價格與訂金一律以「元」輸入，存 DB 時換成整數分。 */
 export default defineEventHandler(async (event) => {
@@ -36,10 +36,28 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Market not found' })
   }
 
+  // 分類可以不選（NULL = 未分類），但選了就必須真的存在
+  let categoryId: string | null = null
+
+  if (body?.categoryId) {
+    categoryId = requireUuid(body.categoryId, 'category id')
+
+    const [category] = await db
+      .select({ id: marketCategories.id })
+      .from(marketCategories)
+      .where(eq(marketCategories.id, categoryId))
+      .limit(1)
+
+    if (!category) {
+      throw createError({ statusCode: 404, statusMessage: '找不到這個分類' })
+    }
+  }
+
   const [created] = await db
     .insert(marketProducts)
     .values({
       marketId,
+      categoryId,
       code: String(body?.code ?? '').trim() || null,
       name,
       description: String(body?.description ?? '').trim() || null,
@@ -65,7 +83,7 @@ export default defineEventHandler(async (event) => {
     action: 'product.create',
     entityType: 'product',
     entityId: created.id,
-    newValue: { name: created.name, marketId, priceCents: created.priceCents }
+    newValue: { name: created.name, marketId, categoryId, priceCents: created.priceCents }
   })
 
   return { success: true, productId: created.id }

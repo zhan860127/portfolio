@@ -176,3 +176,103 @@ describe('縮圖上的標記', () => {
     expect(document.body.querySelectorAll('[aria-label="已瀏覽"]')).toHaveLength(0)
   })
 })
+
+/**
+ * 分類膠囊（森野／其他／全部）。
+ *
+ * 這一層出錯的後果是客人以為作品賣完了，所以「點了哪一顆、送出什麼」
+ * 要一個一個鎖住。
+ */
+const CATEGORIES = [
+  { id: 'c1', name: '森野', slug: 'senya', productCount: 2 },
+  { id: 'c2', name: '林間', slug: 'rinkan', productCount: 3 }
+]
+
+async function mountWithChips(overrides: Record<string, unknown> = {}) {
+  const wrapper = await mountSuspended(MarketSnapshotSheet, {
+    props: {
+      open: true,
+      products,
+      currentIndex: 0,
+      viewed: new Set([0]),
+      categories: CATEGORIES,
+      activeCategory: null,
+      uncategorizedCount: 1,
+      ...overrides
+    },
+    attachTo: document.body
+  })
+
+  mounted.push(wrapper)
+
+  return wrapper
+}
+
+function chipButtons() {
+  return [...document.body.querySelectorAll('[aria-label="依分類篩選"] button')] as HTMLButtonElement[]
+}
+
+describe('分類膠囊', () => {
+  it('全部排第一，每一顆都帶件數', async () => {
+    await mountWithChips()
+    const labels = chipButtons().map(button => button.textContent?.replace(/\s+/g, ' ').trim())
+
+    // 2 + 3 + 未分類 1 = 6
+    expect(labels[0]).toBe('全部 6')
+    expect(labels[1]).toBe('森野 2')
+    expect(labels[2]).toBe('林間 3')
+  })
+
+  it('有未分類的作品時多一顆「其他」，不讓它們消失', async () => {
+    await mountWithChips()
+
+    expect(chipButtons().map(b => b.textContent?.replace(/\s+/g, ' ').trim())).toContain('其他 1')
+  })
+
+  it('沒有未分類的作品時不顯示「其他」', async () => {
+    await mountWithChips({ uncategorizedCount: 0 })
+
+    expect(chipButtons().map(b => b.textContent?.replace(/\s+/g, ' ').trim())).not.toContain('其他 0')
+  })
+
+  it('點一顆分類會送出它的代稱', async () => {
+    const wrapper = await mountWithChips()
+
+    chipButtons()[1]?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+
+    expect(wrapper.emitted('selectCategory')?.[0]).toEqual(['senya'])
+  })
+
+  it('再點一次目前選的分類會回到全部', async () => {
+    const wrapper = await mountWithChips({ activeCategory: 'senya' })
+
+    const active = chipButtons().find(button => button.getAttribute('aria-pressed') === 'true')
+
+    active?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+
+    expect(wrapper.emitted('selectCategory')?.[0]).toEqual([null])
+  })
+
+  it('選中的那顆帶 aria-pressed，不只靠顏色', async () => {
+    await mountWithChips({ activeCategory: 'rinkan' })
+
+    const pressed = chipButtons().filter(button => button.getAttribute('aria-pressed') === 'true')
+
+    expect(pressed).toHaveLength(1)
+    expect(pressed[0]?.textContent?.replace(/\s+/g, ' ').trim()).toBe('林間 3')
+  })
+
+  it('完全沒有分類時不顯示膠囊列，版面不多一條空白', async () => {
+    await mountWithChips({ categories: [], uncategorizedCount: 0 })
+
+    expect(chipButtons()).toHaveLength(0)
+  })
+
+  it('篩選後沒有作品時說清楚，而不是一片空白', async () => {
+    await mountWithChips({ products: [], activeCategory: 'senya' })
+
+    expect(document.body.textContent).toContain('這個分類目前沒有作品')
+  })
+})
